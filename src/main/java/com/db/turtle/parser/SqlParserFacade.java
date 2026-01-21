@@ -1,8 +1,8 @@
 package com.db.turtle.parser;
 
-import com.db.turtle.parser.antlr.SqlLexer;
-import com.db.turtle.parser.antlr.SqlParser;
-import com.db.turtle.parser.ast.Statement;
+import com.db.turtle.parser.antlr.statement.SelectLexer;
+import com.db.turtle.parser.antlr.statement.SelectParser;
+import com.db.turtle.parser.ast.statements.Statement;
 import com.db.turtle.parser.visitor.AstBuilder;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -16,8 +16,8 @@ import org.antlr.v4.runtime.CommonTokenStream;
 public class SqlParserFacade {
 
     public Statement parse(String sql) {
-        SqlLexer lexer = new SqlLexer(CharStreams.fromString(sql));
-        SqlParser parser = new SqlParser(new CommonTokenStream(lexer));
+        SelectLexer lexer = new SelectLexer(CharStreams.fromString(sql));
+        SelectParser parser = new SelectParser(new CommonTokenStream(lexer));
 
         AstBuilder astBuilder = new AstBuilder();
         return (Statement) astBuilder.visit(parser.statement());

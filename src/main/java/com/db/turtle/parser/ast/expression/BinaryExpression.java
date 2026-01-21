@@ -8,12 +8,12 @@ package com.db.turtle.parser.ast.expression;
  * */
 public class BinaryExpression implements Expression {
     public final Expression left;
-    public final String operator;
+    public final ComparisonOperator operator;
     public final Expression right;
 
     public BinaryExpression(
             Expression left,
-            String operator,
+            ComparisonOperator operator,
             Expression right
     ) {
         this.left = left;

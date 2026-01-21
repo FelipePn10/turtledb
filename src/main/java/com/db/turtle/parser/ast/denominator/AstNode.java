@@ -1,4 +1,4 @@
-package com.db.turtle.parser.ast;
+package com.db.turtle.parser.ast.denominator;
 
 /**
  *  Apenas um marcador semântico
