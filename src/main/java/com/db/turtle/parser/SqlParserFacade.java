@@ -2,7 +2,7 @@ package com.db.turtle.parser;
 
 import com.db.turtle.parser.antlr.statement.SelectLexer;
 import com.db.turtle.parser.antlr.statement.SelectParser;
-import com.db.turtle.parser.ast.statements.Statement;
+import com.db.turtle.parser.ast.denominator.Statement;
 import com.db.turtle.parser.visitor.AstBuilder;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;

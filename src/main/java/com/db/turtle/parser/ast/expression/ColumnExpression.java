@@ -1,11 +1,13 @@
 package com.db.turtle.parser.ast.expression;
 
+import com.db.turtle.parser.ast.denominator.Expression;
+
 /**
  * Aponta para uma coluna lógica.
- * Pode ser usada em expressões e ser resolvida depois pelo planner.
- * Não acessa dados, apenas descreve intenção.
- *
- * @author Felipe Panosso
+ * <p>
+ *  Pode ser usada em expressões e ser resolvida depois pelo planner.
+ *  Não acessa dados, apenas descreve intenção.
+ * </p>
  * */
 public class ColumnExpression implements Expression {
     public final String columnName;

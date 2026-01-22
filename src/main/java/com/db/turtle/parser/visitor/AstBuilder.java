@@ -3,10 +3,10 @@ package com.db.turtle.parser.visitor;
 import com.db.turtle.parser.antlr.statement.SelectBaseVisitor;
 import com.db.turtle.parser.antlr.statement.SelectParser;
 import com.db.turtle.parser.ast.denominator.AstNode;
+import com.db.turtle.parser.ast.denominator.Expression;
 import com.db.turtle.parser.ast.statements.SelectStatement;
 import com.db.turtle.parser.ast.ntm.TableName;
 import com.db.turtle.parser.ast.expression.*;
-import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,12 +18,11 @@ import java.util.Optional;
  * Converte cada parte em objetos de domínio e traduz SQL para modelo interno
  * </p>
  *
- * @author Felipe Panosso
  * */
 public class AstBuilder extends SelectBaseVisitor<AstNode> {
 
     /**
-     * Transforma o contexto de uma regra de seleção da árvore de parsing em um nó da AST.
+     * Transforma o contexto de uma regra de seleção da árvore de parsing num nó da AST.
      * <p>
      * Este método implementa o padrão Visitor para processar a regra:
      * {@code SELECT columnList FROM tableName whereClause?}
@@ -46,14 +45,21 @@ public class AstBuilder extends SelectBaseVisitor<AstNode> {
         Optional<Expression> where = ctx.whereClause() == null
                 ? Optional.empty()
                 : Optional.of(
-                        (Expression) visit(
-                                ctx.whereClause().booleanExpression()
-                        ));
+                (Expression) visit(
+                        ctx.whereClause().booleanExpression()
+                ));
 
 
         return new SelectStatement(projection, table, where);
     }
 
+
+    /**
+     * Traduz uma comparação textual da Parse Tree numa operação lógica executável da AST
+     * <p>
+     *     Utiliza o método from de {@link ComparisonOperator} para conversão.
+     * </p>
+     * */
     @Override
     public AstNode visitPredicate(SelectParser.PredicateContext ctx) {
         Expression left = (Expression) visit(ctx.column());
@@ -61,6 +67,7 @@ public class AstBuilder extends SelectBaseVisitor<AstNode> {
                 ComparisonOperator.from(ctx.comparisonOperator().getText());
         Expression right = (Expression) visit(ctx.literal());
 
+        // Operação lógica AST
         return new BinaryExpression(left, operator, right);
     }
 
@@ -68,4 +75,39 @@ public class AstBuilder extends SelectBaseVisitor<AstNode> {
     public AstNode visitTableName(SelectParser.TableNameContext ctx) {
         return new TableName(ctx.IDENTIFIER().getText());
     }
+
+    @Override
+    public AstNode visitColumn(SelectParser.ColumnContext ctx) {
+        return new ColumnExpression(ctx.IDENTIFIER().getText());
+    }
+
+    /**
+     * Dado a um nó literal da parse tree, será definido qual objeto semântico deve
+     * existir na AST.
+     * <p>
+     *     Esse método pertence ao Visitor da AST. Sua responsabilidade não é
+     *     interpretar dados e nem executar nada. Ele apenas deve fazer a normalização semântica corretamente para
+     *     preparar a query para execução
+     * </p>
+     * */
+    @Override
+    public AstNode visitLiteral(SelectParser.LiteralContext ctx) {
+        if (ctx.NUMBER() != null) {
+            return new LiteralExpression(
+                    // Texto -> Double
+                    Double.parseDouble(ctx.NUMBER().getText())
+            );
+        }
+
+        if (ctx.STRING() != null) {
+            String text = ctx.STRING().getText();
+            return new LiteralExpression(
+                    //    "\"Nome\" -> Nome
+                    text.substring(1, text.length() - 1)
+            );
+        }
+
+        return new LiteralExpression(null);
+    }
+
 }

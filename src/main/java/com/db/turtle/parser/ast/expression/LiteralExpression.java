@@ -1,6 +1,8 @@
 package com.db.turtle.parser.ast.expression;
 
 
+import com.db.turtle.parser.ast.denominator.Expression;
+
 /**
  * Representa valores constantes vindos da query
  * Exemplo: 10 || "Felipe" || true

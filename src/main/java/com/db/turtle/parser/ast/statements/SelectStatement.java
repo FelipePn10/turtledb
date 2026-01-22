@@ -1,6 +1,7 @@
 package com.db.turtle.parser.ast.statements;
 
-import com.db.turtle.parser.ast.expression.Expression;
+import com.db.turtle.parser.ast.denominator.Statement;
+import com.db.turtle.parser.ast.denominator.Expression;
 import com.db.turtle.parser.ast.ntm.TableName;
 
 import java.util.List;
