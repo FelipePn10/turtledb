@@ -1,9 +1,9 @@
 package com.db.turtle.parser;
 
-import com.db.turtle.parser.antlr.statement.SelectLexer;
-import com.db.turtle.parser.antlr.statement.SelectParser;
+import com.db.turtle.parser.antlr.statement.select.SelectLexer;
+import com.db.turtle.parser.antlr.statement.select.SelectParser;
 import com.db.turtle.parser.ast.denominator.Statement;
-import com.db.turtle.parser.visitor.AstBuilder;
+import com.db.turtle.parser.visitor.AstSelectBuilder;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
@@ -19,7 +19,7 @@ public class SqlParserFacade {
         SelectLexer lexer = new SelectLexer(CharStreams.fromString(sql));
         SelectParser parser = new SelectParser(new CommonTokenStream(lexer));
 
-        AstBuilder astBuilder = new AstBuilder();
-        return (Statement) astBuilder.visit(parser.statement());
+        AstSelectBuilder astSelectBuilder = new AstSelectBuilder();
+        return (Statement) astSelectBuilder.visit(parser.statement());
     }
 }

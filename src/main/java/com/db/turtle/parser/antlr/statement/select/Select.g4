@@ -1,7 +1,7 @@
 grammar Select;
 
 @header {
-package com.db.turtle.parser.antlr.statement;
+package com.db.turtle.parser.antlr.statement.select;
 }
 
 /*

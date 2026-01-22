@@ -1,15 +1,12 @@
 // Generated from src/main/java/com/db/turtle/parser/antlr/statement/Select.g4 by ANTLR 4.13.1
 
-package com.db.turtle.parser.antlr.statement;
+package com.db.turtle.parser.antlr.statement.select;
 
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.misc.*;
 import org.antlr.v4.runtime.tree.*;
 import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue"})
 public class SelectParser extends Parser {
@@ -113,7 +110,7 @@ public class SelectParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_statement; }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SelectVisitor ) return ((SelectVisitor<? extends T>)visitor).visitStatement(this);
+			if ( visitor instanceof SelectVisitor) return ((SelectVisitor<? extends T>)visitor).visitStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}

@@ -1,7 +1,7 @@
 package com.db.turtle.parser.visitor;
 
-import com.db.turtle.parser.antlr.statement.SelectBaseVisitor;
-import com.db.turtle.parser.antlr.statement.SelectParser;
+import com.db.turtle.parser.antlr.statement.select.SelectBaseVisitor;
+import com.db.turtle.parser.antlr.statement.select.SelectParser;
 import com.db.turtle.parser.ast.denominator.AstNode;
 import com.db.turtle.parser.ast.denominator.Expression;
 import com.db.turtle.parser.ast.statements.SelectStatement;
@@ -17,9 +17,8 @@ import java.util.Optional;
  * <p>
  * Converte cada parte em objetos de domínio e traduz SQL para modelo interno
  * </p>
- *
  * */
-public class AstBuilder extends SelectBaseVisitor<AstNode> {
+public class AstSelectBuilder extends SelectBaseVisitor<AstNode> {
 
     /**
      * Transforma o contexto de uma regra de seleção da árvore de parsing num nó da AST.
@@ -52,7 +51,6 @@ public class AstBuilder extends SelectBaseVisitor<AstNode> {
 
         return new SelectStatement(projection, table, where);
     }
-
 
     /**
      * Traduz uma comparação textual da Parse Tree numa operação lógica executável da AST
