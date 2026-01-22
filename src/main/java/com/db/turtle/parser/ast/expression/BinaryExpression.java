@@ -1,5 +1,7 @@
 package com.db.turtle.parser.ast.expression;
 
+import com.db.turtle.parser.ast.denominator.Expression;
+
 /**
  * Representa operações entre duas expressões.
  * Exemplo: a + b || price > 100 || age AND active

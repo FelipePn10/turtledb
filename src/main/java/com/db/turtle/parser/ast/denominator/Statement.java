@@ -1,6 +1,4 @@
-package com.db.turtle.parser.ast.statements;
-
-import com.db.turtle.parser.ast.denominator.AstNode;
+package com.db.turtle.parser.ast.denominator;
 
 /**
  * Representa comandos de alto nível, que produzem efeito no banco de dados
