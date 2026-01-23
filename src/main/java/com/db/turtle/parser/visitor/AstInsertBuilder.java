@@ -4,6 +4,7 @@ import com.db.turtle.parser.antlr.statement.insert.InsertBaseVisitor;
 import com.db.turtle.parser.antlr.statement.insert.InsertParser;
 import com.db.turtle.parser.ast.denominator.AstNode;
 import com.db.turtle.parser.ast.denominator.Expression;
+import com.db.turtle.parser.ast.expression.LiteralExpression;
 import com.db.turtle.parser.ast.ntm.ColumnName;
 import com.db.turtle.parser.ast.ntm.TableName;
 import com.db.turtle.parser.ast.statements.InsertStatement;
@@ -31,26 +32,89 @@ public class AstInsertBuilder extends InsertBaseVisitor<AstNode> {
     @Override
     public AstNode visitInsertStatement(InsertParser.InsertStatementContext ctx) {
         TableName table = (TableName) visitTableName(ctx.tableName());
+
         List<ColumnName> colum =
                 ctx.columnList() == null
                         ? List.of()
                         : ctx.columnList()
-                            .column()
-                            .stream()
-                            .map(c -> (ColumnName) visit(c))
-                            .toList();
+                        .column()
+                        .stream()
+                        .map(c -> (ColumnName) visitColumn(c))
+                        .toList();
 
         List<Expression> values = ctx.valueList()
                 .literal()
                 .stream()
-                .map(l -> (Expression) visit(l))
+                .map(l -> (Expression) visitLiteral(l))
                 .toList();
 
         return new InsertStatement(table, colum, values);
     }
 
+    /**
+     * Visita o contexto de uma tabela e retorna um TableName.
+     *
+     * @param ctx O contexto da coluna
+     * @return Uma instância de ColumnName
+     */
     @Override
     public AstNode visitTableName(InsertParser.TableNameContext ctx) {
         return new TableName(ctx.IDENTIFIER().getText());
+    }
+
+    /**
+     * Visita o contexto de uma coluna e retorna um ColumnName.
+     *
+     * @param ctx O contexto da coluna
+     * @return Uma instância de ColumnName
+     */
+    @Override
+    public AstNode visitColumn(InsertParser.ColumnContext ctx) {
+        return new ColumnName(ctx.IDENTIFIER().getText());
+    }
+
+    /**
+     * Visita o contexto de um literal e retorna uma LiteralExpression.
+     *
+     * Converte tokens da gramática (NUMBER, STRING, NULL) em valores Java apropriado:
+     * - NUMBER: Integer ou Double dependendo se tem ponto decimal
+     * - STRING: String com aspas removidas e escapes processados
+     * - NULL: null
+     * Sem esse método não é possível verificar o tipo de dado que está entrando.
+     *
+     * @param ctx O contexto do literal
+     * @return Uma instância de LiteralExpression contendo o valor parseado
+     */
+    @Override
+    public AstNode visitLiteral(InsertParser.LiteralContext ctx) {
+        if (ctx.NUMBER() != null) {
+            String numberText = ctx.NUMBER().getText();
+            Object value;
+
+            if (numberText.contains(".")) {
+                value = Double.parseDouble(numberText);
+            } else {
+                value = Integer.parseInt(numberText);
+            }
+
+            return new LiteralExpression(value);
+
+        } else if (ctx.STRING() != null) {
+            String stringText = ctx.STRING().getText();
+            // Remove aspas simples do início e fim
+            String value = stringText.substring(1, stringText.length() - 1);
+            // Processa escapes básicos
+            value = value.replace("\\n", "\n")
+                    .replace("\\t", "\t")
+                    .replace("\\'", "'")
+                    .replace("\\\\", "\\");
+
+            return new LiteralExpression(value);
+
+        } else if (ctx.NULL() != null) {
+            return new LiteralExpression(null);
+        }
+
+        throw new IllegalArgumentException("Unknown literal type: " + ctx.getText());
     }
 }

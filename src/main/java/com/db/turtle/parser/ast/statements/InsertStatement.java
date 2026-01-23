@@ -22,5 +22,17 @@ public record InsertStatement(
         columns = List.copyOf(columns);
         values = List.copyOf(values);
     }
+
+    public TableName getTable() {
+        return table;
+    }
+
+    public List<ColumnName> getColumns() {
+        return columns;
+    }
+
+    public List<Expression> getValues() {
+        return values;
+    }
 }
 

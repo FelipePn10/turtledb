@@ -18,5 +18,18 @@ public record SelectStatement(
         Objects.requireNonNull(table);
 
         projection = List.copyOf(projection);
+
+    }
+
+    public List<Expression> getProjection() {
+        return projection;
+    }
+
+    public TableName getTable() {
+        return table;
+    }
+
+    public Optional<Expression> getWhere() {
+        return where;
     }
 }
