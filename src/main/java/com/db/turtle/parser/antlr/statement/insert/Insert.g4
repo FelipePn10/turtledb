@@ -17,7 +17,6 @@ package com.db.turtle.parser.antlr.statement.insert;
 *    INSERT LOW_PRIORITY INTO ...     = erro
 *
 * Atualizações futuras virão para que isso seja suportado.
-* Ass: Felipe Panosso - TurtleDB
 */
 statement
     : insertStatement EOF

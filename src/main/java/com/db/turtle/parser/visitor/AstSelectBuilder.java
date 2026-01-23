@@ -80,14 +80,17 @@ public class AstSelectBuilder extends SelectBaseVisitor<AstNode> {
     }
 
     /**
-     * Dado a um nó literal da parse tree, será definido qual objeto semântico deve
-     * existir na AST.
-     * <p>
-     *     Esse método pertence ao Visitor da AST. Sua responsabilidade não é
-     *     interpretar dados e nem executar nada. Ele apenas deve fazer a normalização semântica corretamente para
-     *     preparar a query para execução
-     * </p>
-     * */
+     * Visita o contexto de um literal e retorna uma LiteralExpression.
+     *
+     * Converte tokens da gramática (NUMBER, STRING, NULL) em valores Java apropriado:
+     * - NUMBER: Integer ou Double dependendo se tem ponto decimal
+     * - STRING: String com aspas removidas e escapes processados
+     * - NULL: null
+     * Sem esse método não é possível verificar o tipo de dado que está entrando.
+     *
+     * @param ctx O contexto do literal
+     * @return Uma instância de LiteralExpression contendo o valor parseado
+     */
     @Override
     public AstNode visitLiteral(SelectParser.LiteralContext ctx) {
         if (ctx.NUMBER() != null) {
