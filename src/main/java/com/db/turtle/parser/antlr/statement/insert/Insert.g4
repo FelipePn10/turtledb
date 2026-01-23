@@ -4,6 +4,21 @@ grammar Insert;
 package com.db.turtle.parser.antlr.statement.insert;
 }
 
+/**
+* Atualmente a gramática está na sua primeira versão. Portanto temos as seguintes ressalvas de escopo:
+*.
+* 1. INSERT INTO users                = OK
+* INSERT INTO public.users            = erro
+*
+* 2. INSERT INTO table DEFAULT VALUES = erro
+*    INSERT INTO table SELECT ...     = erro
+*
+* 3. INSERT OR IGNORE INTO ...        = erro
+*    INSERT LOW_PRIORITY INTO ...     = erro
+*
+* Atualizações futuras virão para que isso seja suportado.
+* Ass: Felipe Panosso - TurtleDB
+*/
 statement
     : insertStatement EOF
     ;
