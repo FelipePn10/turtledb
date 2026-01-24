@@ -2,6 +2,9 @@ package com.db.turtle.parser.ast.ntm;
 
 import com.db.turtle.parser.ast.denominator.AstNode;
 
+/**
+ * Representação formal do nome de uma coluna
+ * */
 public class ColumnName implements AstNode {
     private String name;
     public ColumnName(String name) {
