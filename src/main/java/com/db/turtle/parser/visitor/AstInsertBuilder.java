@@ -1,7 +1,7 @@
 package com.db.turtle.parser.visitor;
 
-import com.db.turtle.parser.antlr.statement.insert.InsertBaseVisitor;
-import com.db.turtle.parser.antlr.statement.insert.InsertParser;
+import com.db.turtle.parser.antlr.statement.dml.insert.InsertBaseVisitor;
+import com.db.turtle.parser.antlr.statement.dml.insert.InsertParser;
 import com.db.turtle.parser.ast.denominator.AstNode;
 import com.db.turtle.parser.ast.denominator.Expression;
 import com.db.turtle.parser.ast.expression.LiteralExpression;
