@@ -1,8 +1,8 @@
 package com.db.turtle;
 
 
-import com.db.turtle.parser.antlr.statement.insert.InsertLexer;
-import com.db.turtle.parser.antlr.statement.insert.InsertParser;
+import com.db.turtle.parser.antlr.statement.dml.insert.InsertLexer;
+import com.db.turtle.parser.antlr.statement.dml.insert.InsertParser;
 import com.db.turtle.parser.ast.ntm.TableName;
 import com.db.turtle.parser.ast.statements.InsertStatement;
 import com.db.turtle.parser.visitor.AstInsertBuilder;

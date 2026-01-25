@@ -1,6 +1,6 @@
 // Generated from src/main/java/com/db/turtle/parser/antlr/statement/Select.g4 by ANTLR 4.13.1
 
-package com.db.turtle.parser.antlr.statement.select;
+package com.db.turtle.parser.antlr.statement.dml.select;
 
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 

@@ -1,6 +1,6 @@
 // Generated from src/main/java/com/db/turtle/parser/antlr/statement/insert/Insert.g4 by ANTLR 4.13.1
 
-package com.db.turtle.parser.antlr.statement.insert;
+package com.db.turtle.parser.antlr.statement.dml.insert;
 
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 

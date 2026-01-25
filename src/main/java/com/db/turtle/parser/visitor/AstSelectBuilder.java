@@ -1,7 +1,7 @@
 package com.db.turtle.parser.visitor;
 
-import com.db.turtle.parser.antlr.statement.select.SelectBaseVisitor;
-import com.db.turtle.parser.antlr.statement.select.SelectParser;
+import com.db.turtle.parser.antlr.statement.dml.select.SelectBaseVisitor;
+import com.db.turtle.parser.antlr.statement.dml.select.SelectParser;
 import com.db.turtle.parser.ast.denominator.AstNode;
 import com.db.turtle.parser.ast.denominator.Expression;
 import com.db.turtle.parser.ast.statements.SelectStatement;
