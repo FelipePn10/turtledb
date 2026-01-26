@@ -7,7 +7,13 @@ import com.db.turtle.parser.ast.ntm.ColumnDef;
 import com.db.turtle.parser.ast.ntm.ColumnName;
 import com.db.turtle.parser.ast.ntm.TableName;
 import com.db.turtle.parser.ast.ntm.constraint.ColumnConstraint;
+import com.db.turtle.parser.ast.ntm.constraint.DefaultConstraint;
+import com.db.turtle.parser.ast.ntm.constraint.NotNullConstraint;
+import com.db.turtle.parser.ast.ntm.constraint.PrimaryKeyConstraint;
 import com.db.turtle.parser.ast.ntm.types.DataType;
+import com.db.turtle.parser.ast.ntm.types.DecimalType;
+import com.db.turtle.parser.ast.ntm.types.IntType;
+import com.db.turtle.parser.ast.ntm.types.VarcharType;
 import com.db.turtle.parser.ast.statements.CreateTableStatement;
 
 import java.util.List;
@@ -159,5 +165,106 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<AstNode> {
         }
 
         return (ColumnConstraint) node;
+    }
+
+    @Override
+    public AstNode visitDataType(CreateTableParser.DataTypeContext ctx) {
+        if (ctx.VARCHAR() != null) {
+            return parseVarchar(ctx);
+        }
+
+        if (ctx.INT() != null) {
+            return new IntType();
+        }
+
+        if (ctx.DECIMAL() != null) {
+            return parseDecimal(ctx);
+        }
+
+        // CHAR, INTEGER, BIGINT, FLOAT, DOUBLE, DATE, DATETIME, TIMESTAMP, TEXT, BOOLEAN
+
+        throw new IllegalStateException("Unknown data type: " + ctx.getText());
+    }
+
+
+    @Override
+    public AstNode visitColumnConstraint(CreateTableParser.ColumnConstraintContext ctx) {
+
+        // NOT NULL
+        if (ctx.NOT() != null && ctx.NULL() != null) {
+            return new NotNullConstraint();
+        }
+
+        // PRIMARY KEY
+        if (ctx.PRIMARY() != null && ctx.KEY() != null) {
+            return new PrimaryKeyConstraint();
+        }
+
+        // DEFAULT valor
+        if (ctx.DEFAULT() != null) {
+            Object defaultValue = parseDefaultValue(ctx.defaultValue());
+            return new DefaultConstraint(defaultValue);
+        }
+
+        // UNIQUE, AUTO_INCREMENT, NULL
+
+        throw new IllegalStateException("Unknown constraint: " + ctx.getText());
+    }
+
+    private VarcharType parseVarchar(CreateTableParser.DataTypeContext ctx) {
+        int size = Integer.parseInt(ctx.NUMBER(0).getText());
+        return new VarcharType(size);
+    }
+
+    private DecimalType parseDecimal(CreateTableParser.DataTypeContext ctx) {
+        int precision = Integer.parseInt(ctx.NUMBER(0).getText());
+        Integer scale = ctx.NUMBER().size() > 1
+                ? Integer.parseInt(ctx.NUMBER(1).getText())
+                : null;
+
+        return new DecimalType(precision, scale);
+    }
+
+    /**
+     * Parseia o valor default da constraint DEFAULT
+     */
+    private Object parseDefaultValue(CreateTableParser.DefaultValueContext ctx) {
+        if (ctx == null) {
+            throw new IllegalArgumentException("Default value cannot be null");
+        }
+
+        // NUMBER
+        if (ctx.NUMBER() != null) {
+            String numberText = ctx.NUMBER().getText();
+            if (numberText.contains(".")) {
+                return Double.parseDouble(numberText);
+            } else {
+                return Integer.parseInt(numberText);
+            }
+        }
+
+        // STRING
+        if (ctx.STRING() != null) {
+            String text = ctx.STRING().getText();
+            // Remove aspas do início e fim
+            return text.substring(1, text.length() - 1);
+        }
+
+        // NULL
+        if (ctx.NULL() != null) {
+            return null;
+        }
+
+        // TRUE
+        if (ctx.TRUE() != null) {
+            return true;
+        }
+
+        // FALSE
+        if (ctx.FALSE() != null) {
+            return false;
+        }
+
+        throw new IllegalStateException("Unknown default value: " + ctx.getText());
     }
 }
