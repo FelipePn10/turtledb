@@ -12,11 +12,9 @@ import com.db.turtle.parser.ast.statements.InsertStatement;
 import java.util.List;
 
 /**
- * Visita a parse tree do ANTLR
- * <p>
- * Converte cada parte em objetos de domínio e traduz SQL para modelo interno
- * </p>
- * */
+ * Visitor que constrói a AST (Abstract Syntax Tree) a partir do parse tree
+ * gerado pelo ANTLR para comandos INSERT.
+ */
 public class AstInsertBuilder extends InsertBaseVisitor<AstNode> {
     /**
      * Transforma o contexto de uma regra de inserção da árvore de parsing num nó da AST.

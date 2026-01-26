@@ -1,5 +1,6 @@
 package com.db.turtle.parser.ast.ntm;
 
+import com.db.turtle.parser.ast.denominator.AstNode;
 import com.db.turtle.parser.ast.ntm.constraint.ColumnConstraint;
 import com.db.turtle.parser.ast.ntm.types.DataType;
 
@@ -9,7 +10,7 @@ import java.util.List;
  * Representação de uma coluna com o seu tipo e a sua constraint.
  *
  * */
-public class ColumnDef {
+public class ColumnDef implements AstNode {
     private final ColumnName columnName;
     private final DataType dataType;
     private final List<ColumnConstraint> constraints;

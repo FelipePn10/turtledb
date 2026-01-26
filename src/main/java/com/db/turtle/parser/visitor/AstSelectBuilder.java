@@ -13,11 +13,9 @@ import java.util.Optional;
 
 
 /**
- * Visita a parse tree do ANTLR
- * <p>
- * Converte cada parte em objetos de domínio e traduz SQL para modelo interno
- * </p>
- * */
+ * Visitor que constrói a AST (Abstract Syntax Tree) a partir do parse tree
+ * gerado pelo ANTLR para comandos SELECT.
+ */
 public class AstSelectBuilder extends SelectBaseVisitor<AstNode> {
 
     /**
