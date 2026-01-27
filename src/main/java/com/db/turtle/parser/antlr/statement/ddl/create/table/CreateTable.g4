@@ -25,19 +25,19 @@ tableName
     ;
 
 dataType
-    : VARCHAR LPAREN NUMBER RPAREN                  // VARCHAR(255)
-    | CHAR LPAREN NUMBER RPAREN                     // CHAR(10)
-    | INT                                           // INT
-    | INTEGER                                       // INTEGER
-    | BIGINT                                        // BIGINT
-    | DECIMAL LPAREN NUMBER (COMMA NUMBER)? RPAREN  // DECIMAL(10,2)
-    | FLOAT                                         // FLOAT
-    | DOUBLE                                        // DOUBLE
-    | DATE                                          // DATE
-    | DATETIME                                      // DATETIME
-    | TIMESTAMP                                     // TIMESTAMP
-    | TEXT                                          // TEXT
-    | BOOLEAN                                       // BOOLEAN
+    : VARCHAR LPAREN NUMBER RPAREN                  #varcharType
+    | CHAR LPAREN NUMBER RPAREN                     #charType
+    | INT                                           #intType
+    | INTEGER                                       #integerType
+    | BIGINT                                        #bigintType
+    | DECIMAL LPAREN NUMBER (COMMA NUMBER)? RPAREN  #decimalType
+    | FLOAT                                         #floatType
+    | DOUBLE                                        #doubleType
+    | DATE                                          #dateType
+    | DATETIME                                      #datetimeType
+    | TIMESTAMP                                     #timestampType
+    | TEXT                                          #textType
+    | BOOLEAN                                       #booleanType
     ;
 
 columnConstraints
@@ -45,21 +45,30 @@ columnConstraints
     ;
 
 columnConstraint
-    : NOT NULL                          // NOT NULL
-    | NULL                              // NULL
-    | PRIMARY KEY                       // PRIMARY KEY
-    | UNIQUE                            // UNIQUE
-    | AUTO_INCREMENT                    // AUTO_INCREMENT
-    | DEFAULT defaultValue              // DEFAULT valor
+    : NOT NULL                  #notNullConstraint
+    | NULL                      #nullConstraint
+    | PRIMARY KEY               #primaryKeyConstraint
+    | UNIQUE                    #uniqueConstraint
+    | AUTO_INCREMENT            #autoIncrementConstraint
+    | DEFAULT defaultValue      #defaultConstraint
     ;
 
 defaultValue
-    : NUMBER
+    : NUMBER                    
     | STRING
     | NULL
     | TRUE
     | FALSE
     ;
+    //    defaultValue
+    //        : NUMBER                    #numberDefault
+    //        | STRING                    #stringDefault
+    //        | NULL                      #nullDefault
+    //        | TRUE                      #trueDefault
+    //        | FALSE                     #falseDefault
+    //        ;
+
+
 
 // Keywords
 CREATE          : C R E A T E;
