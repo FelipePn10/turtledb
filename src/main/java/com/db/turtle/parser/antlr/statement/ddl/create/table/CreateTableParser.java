@@ -1,12 +1,15 @@
-// Generated from src/main/java/com/db/turtle/parser/antlr/ddl/create/table/CreateTable.g4 by ANTLR 4.13.1
+// Generated from src/main/java/com/db/turtle/parser/antlr/statement/ddl/create/table/CreateTable.g4 by ANTLR 4.13.1
 
 package com.db.turtle.parser.antlr.statement.ddl.create.table;
 
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.*;
 import org.antlr.v4.runtime.tree.*;
 import java.util.List;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue"})
 public class CreateTableParser extends Parser {
@@ -347,33 +350,156 @@ public class CreateTableParser extends Parser {
 
 	@SuppressWarnings("CheckReturnValue")
 	public static class DataTypeContext extends ParserRuleContext {
-		public TerminalNode VARCHAR() { return getToken(CreateTableParser.VARCHAR, 0); }
+		public DataTypeContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_dataType; }
+	 
+		public DataTypeContext() { }
+		public void copyFrom(DataTypeContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class CharTypeContext extends DataTypeContext {
+		public TerminalNode CHAR() { return getToken(CreateTableParser.CHAR, 0); }
+		public TerminalNode LPAREN() { return getToken(CreateTableParser.LPAREN, 0); }
+		public TerminalNode NUMBER() { return getToken(CreateTableParser.NUMBER, 0); }
+		public TerminalNode RPAREN() { return getToken(CreateTableParser.RPAREN, 0); }
+		public CharTypeContext(DataTypeContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitCharType(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class DoubleTypeContext extends DataTypeContext {
+		public TerminalNode DOUBLE() { return getToken(CreateTableParser.DOUBLE, 0); }
+		public DoubleTypeContext(DataTypeContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitDoubleType(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class DecimalTypeContext extends DataTypeContext {
+		public TerminalNode DECIMAL() { return getToken(CreateTableParser.DECIMAL, 0); }
 		public TerminalNode LPAREN() { return getToken(CreateTableParser.LPAREN, 0); }
 		public List<TerminalNode> NUMBER() { return getTokens(CreateTableParser.NUMBER); }
 		public TerminalNode NUMBER(int i) {
 			return getToken(CreateTableParser.NUMBER, i);
 		}
 		public TerminalNode RPAREN() { return getToken(CreateTableParser.RPAREN, 0); }
-		public TerminalNode CHAR() { return getToken(CreateTableParser.CHAR, 0); }
-		public TerminalNode INT() { return getToken(CreateTableParser.INT, 0); }
-		public TerminalNode INTEGER() { return getToken(CreateTableParser.INTEGER, 0); }
-		public TerminalNode BIGINT() { return getToken(CreateTableParser.BIGINT, 0); }
-		public TerminalNode DECIMAL() { return getToken(CreateTableParser.DECIMAL, 0); }
 		public TerminalNode COMMA() { return getToken(CreateTableParser.COMMA, 0); }
-		public TerminalNode FLOAT() { return getToken(CreateTableParser.FLOAT, 0); }
-		public TerminalNode DOUBLE() { return getToken(CreateTableParser.DOUBLE, 0); }
-		public TerminalNode DATE() { return getToken(CreateTableParser.DATE, 0); }
-		public TerminalNode DATETIME() { return getToken(CreateTableParser.DATETIME, 0); }
-		public TerminalNode TIMESTAMP() { return getToken(CreateTableParser.TIMESTAMP, 0); }
-		public TerminalNode TEXT() { return getToken(CreateTableParser.TEXT, 0); }
-		public TerminalNode BOOLEAN() { return getToken(CreateTableParser.BOOLEAN, 0); }
-		public DataTypeContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_dataType; }
+		public DecimalTypeContext(DataTypeContext ctx) { copyFrom(ctx); }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitDataType(this);
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitDecimalType(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class BooleanTypeContext extends DataTypeContext {
+		public TerminalNode BOOLEAN() { return getToken(CreateTableParser.BOOLEAN, 0); }
+		public BooleanTypeContext(DataTypeContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitBooleanType(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class IntegerTypeContext extends DataTypeContext {
+		public TerminalNode INTEGER() { return getToken(CreateTableParser.INTEGER, 0); }
+		public IntegerTypeContext(DataTypeContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitIntegerType(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class IntTypeContext extends DataTypeContext {
+		public TerminalNode INT() { return getToken(CreateTableParser.INT, 0); }
+		public IntTypeContext(DataTypeContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitIntType(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class TextTypeContext extends DataTypeContext {
+		public TerminalNode TEXT() { return getToken(CreateTableParser.TEXT, 0); }
+		public TextTypeContext(DataTypeContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitTextType(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class FloatTypeContext extends DataTypeContext {
+		public TerminalNode FLOAT() { return getToken(CreateTableParser.FLOAT, 0); }
+		public FloatTypeContext(DataTypeContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitFloatType(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class DateTypeContext extends DataTypeContext {
+		public TerminalNode DATE() { return getToken(CreateTableParser.DATE, 0); }
+		public DateTypeContext(DataTypeContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitDateType(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class DatetimeTypeContext extends DataTypeContext {
+		public TerminalNode DATETIME() { return getToken(CreateTableParser.DATETIME, 0); }
+		public DatetimeTypeContext(DataTypeContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitDatetimeType(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class TimestampTypeContext extends DataTypeContext {
+		public TerminalNode TIMESTAMP() { return getToken(CreateTableParser.TIMESTAMP, 0); }
+		public TimestampTypeContext(DataTypeContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitTimestampType(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class BigintTypeContext extends DataTypeContext {
+		public TerminalNode BIGINT() { return getToken(CreateTableParser.BIGINT, 0); }
+		public BigintTypeContext(DataTypeContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitBigintType(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class VarcharTypeContext extends DataTypeContext {
+		public TerminalNode VARCHAR() { return getToken(CreateTableParser.VARCHAR, 0); }
+		public TerminalNode LPAREN() { return getToken(CreateTableParser.LPAREN, 0); }
+		public TerminalNode NUMBER() { return getToken(CreateTableParser.NUMBER, 0); }
+		public TerminalNode RPAREN() { return getToken(CreateTableParser.RPAREN, 0); }
+		public VarcharTypeContext(DataTypeContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitVarcharType(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -387,6 +513,7 @@ public class CreateTableParser extends Parser {
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case VARCHAR:
+				_localctx = new VarcharTypeContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(44);
@@ -400,6 +527,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case CHAR:
+				_localctx = new CharTypeContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(48);
@@ -413,6 +541,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case INT:
+				_localctx = new IntTypeContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(52);
@@ -420,6 +549,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case INTEGER:
+				_localctx = new IntegerTypeContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(53);
@@ -427,6 +557,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case BIGINT:
+				_localctx = new BigintTypeContext(_localctx);
 				enterOuterAlt(_localctx, 5);
 				{
 				setState(54);
@@ -434,6 +565,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case DECIMAL:
+				_localctx = new DecimalTypeContext(_localctx);
 				enterOuterAlt(_localctx, 6);
 				{
 				setState(55);
@@ -459,6 +591,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case FLOAT:
+				_localctx = new FloatTypeContext(_localctx);
 				enterOuterAlt(_localctx, 7);
 				{
 				setState(63);
@@ -466,6 +599,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case DOUBLE:
+				_localctx = new DoubleTypeContext(_localctx);
 				enterOuterAlt(_localctx, 8);
 				{
 				setState(64);
@@ -473,6 +607,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case DATE:
+				_localctx = new DateTypeContext(_localctx);
 				enterOuterAlt(_localctx, 9);
 				{
 				setState(65);
@@ -480,6 +615,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case DATETIME:
+				_localctx = new DatetimeTypeContext(_localctx);
 				enterOuterAlt(_localctx, 10);
 				{
 				setState(66);
@@ -487,6 +623,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case TIMESTAMP:
+				_localctx = new TimestampTypeContext(_localctx);
 				enterOuterAlt(_localctx, 11);
 				{
 				setState(67);
@@ -494,6 +631,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case TEXT:
+				_localctx = new TextTypeContext(_localctx);
 				enterOuterAlt(_localctx, 12);
 				{
 				setState(68);
@@ -501,6 +639,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case BOOLEAN:
+				_localctx = new BooleanTypeContext(_localctx);
 				enterOuterAlt(_localctx, 13);
 				{
 				setState(69);
@@ -577,23 +716,78 @@ public class CreateTableParser extends Parser {
 
 	@SuppressWarnings("CheckReturnValue")
 	public static class ColumnConstraintContext extends ParserRuleContext {
-		public TerminalNode NOT() { return getToken(CreateTableParser.NOT, 0); }
-		public TerminalNode NULL() { return getToken(CreateTableParser.NULL, 0); }
-		public TerminalNode PRIMARY() { return getToken(CreateTableParser.PRIMARY, 0); }
-		public TerminalNode KEY() { return getToken(CreateTableParser.KEY, 0); }
-		public TerminalNode UNIQUE() { return getToken(CreateTableParser.UNIQUE, 0); }
-		public TerminalNode AUTO_INCREMENT() { return getToken(CreateTableParser.AUTO_INCREMENT, 0); }
-		public TerminalNode DEFAULT() { return getToken(CreateTableParser.DEFAULT, 0); }
-		public DefaultValueContext defaultValue() {
-			return getRuleContext(DefaultValueContext.class,0);
-		}
 		public ColumnConstraintContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_columnConstraint; }
+	 
+		public ColumnConstraintContext() { }
+		public void copyFrom(ColumnConstraintContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class NullConstraintContext extends ColumnConstraintContext {
+		public TerminalNode NULL() { return getToken(CreateTableParser.NULL, 0); }
+		public NullConstraintContext(ColumnConstraintContext ctx) { copyFrom(ctx); }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitColumnConstraint(this);
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitNullConstraint(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class AutoIncrementConstraintContext extends ColumnConstraintContext {
+		public TerminalNode AUTO_INCREMENT() { return getToken(CreateTableParser.AUTO_INCREMENT, 0); }
+		public AutoIncrementConstraintContext(ColumnConstraintContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitAutoIncrementConstraint(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class NotNullConstraintContext extends ColumnConstraintContext {
+		public TerminalNode NOT() { return getToken(CreateTableParser.NOT, 0); }
+		public TerminalNode NULL() { return getToken(CreateTableParser.NULL, 0); }
+		public NotNullConstraintContext(ColumnConstraintContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitNotNullConstraint(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class DefaultConstraintContext extends ColumnConstraintContext {
+		public TerminalNode DEFAULT() { return getToken(CreateTableParser.DEFAULT, 0); }
+		public DefaultValueContext defaultValue() {
+			return getRuleContext(DefaultValueContext.class,0);
+		}
+		public DefaultConstraintContext(ColumnConstraintContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitDefaultConstraint(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class PrimaryKeyConstraintContext extends ColumnConstraintContext {
+		public TerminalNode PRIMARY() { return getToken(CreateTableParser.PRIMARY, 0); }
+		public TerminalNode KEY() { return getToken(CreateTableParser.KEY, 0); }
+		public PrimaryKeyConstraintContext(ColumnConstraintContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitPrimaryKeyConstraint(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class UniqueConstraintContext extends ColumnConstraintContext {
+		public TerminalNode UNIQUE() { return getToken(CreateTableParser.UNIQUE, 0); }
+		public UniqueConstraintContext(ColumnConstraintContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CreateTableVisitor ) return ((CreateTableVisitor<? extends T>)visitor).visitUniqueConstraint(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -606,6 +800,7 @@ public class CreateTableParser extends Parser {
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case NOT:
+				_localctx = new NotNullConstraintContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(77);
@@ -615,6 +810,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case NULL:
+				_localctx = new NullConstraintContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(79);
@@ -622,6 +818,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case PRIMARY:
+				_localctx = new PrimaryKeyConstraintContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(80);
@@ -631,6 +828,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case UNIQUE:
+				_localctx = new UniqueConstraintContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(82);
@@ -638,6 +836,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case AUTO_INCREMENT:
+				_localctx = new AutoIncrementConstraintContext(_localctx);
 				enterOuterAlt(_localctx, 5);
 				{
 				setState(83);
@@ -645,6 +844,7 @@ public class CreateTableParser extends Parser {
 				}
 				break;
 			case DEFAULT:
+				_localctx = new DefaultConstraintContext(_localctx);
 				enterOuterAlt(_localctx, 6);
 				{
 				setState(84);

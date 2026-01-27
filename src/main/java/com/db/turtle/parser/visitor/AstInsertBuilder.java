@@ -57,7 +57,7 @@ public class AstInsertBuilder extends InsertBaseVisitor<AstNode> {
      */
     @Override
     public AstNode visitTableName(InsertParser.TableNameContext ctx) {
-        return new TableName(ctx.IDENTIFIER().getText());
+        return buildTableName(ctx);
     }
 
     /**
@@ -68,12 +68,12 @@ public class AstInsertBuilder extends InsertBaseVisitor<AstNode> {
      */
     @Override
     public AstNode visitColumn(InsertParser.ColumnContext ctx) {
-        return new ColumnName(ctx.IDENTIFIER().getText());
+        return buildColumnName(ctx);
     }
 
     /**
      * Visita o contexto de um literal e retorna uma LiteralExpression.
-     *
+     * <p>
      * Converte tokens da gramática (NUMBER, STRING, NULL) em valores Java apropriado:
      * - NUMBER: Integer ou Double dependendo se tem ponto decimal
      * - STRING: String com aspas removidas e escapes processados
@@ -85,6 +85,32 @@ public class AstInsertBuilder extends InsertBaseVisitor<AstNode> {
      */
     @Override
     public AstNode visitLiteral(InsertParser.LiteralContext ctx) {
+        return buildLiteral(ctx);
+    }
+
+
+    /**
+     * Constrói um TableName a partir do contexto do parser.
+     *
+     * @param ctx contexto contendo o identificador da tabela
+     * @return TableName imutável
+     * @throws IllegalArgumentException se o contexto for inválido
+     */
+    private TableName buildTableName(InsertParser.TableNameContext ctx) {
+        if (ctx == null || ctx.IDENTIFIER() == null) {
+            throw new IllegalArgumentException("Invalid table name context");
+        }
+        return new TableName(ctx.IDENTIFIER().getText());
+    }
+
+    /**
+     * Constrói um Literal para aceitar valores constantes vindos da query
+     *
+     * @param ctx contexto contendo o identificador da literal
+     * @return LiteralExpression imutável
+     * @throws IllegalArgumentException se o literal type for inválido
+     * */
+    private LiteralExpression buildLiteral(InsertParser.LiteralContext ctx) {
         if (ctx.NUMBER() != null) {
             String numberText = ctx.NUMBER().getText();
             Object value;
@@ -114,5 +140,19 @@ public class AstInsertBuilder extends InsertBaseVisitor<AstNode> {
         }
 
         throw new IllegalArgumentException("Unknown literal type: " + ctx.getText());
+    }
+
+    /**
+     * Constrói um ColumnName a partir do contexto do parser.
+     *
+     * @param ctx contexto contendo o identificador da coluna
+     * @return ColumnName imutável
+     * @throws IllegalArgumentException se o contexto for inválido
+     */
+    private ColumnName buildColumnName(InsertParser.ColumnContext ctx) {
+        if (ctx == null || ctx.IDENTIFIER() == null) {
+            throw new IllegalArgumentException("Invalid column name context");
+        }
+        return new ColumnName(ctx.IDENTIFIER().getText());
     }
 }

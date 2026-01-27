@@ -32,12 +32,14 @@ class AstCreateTableBuilderIntegrationTest {
                 id INT PRIMARY KEY,
                 nome VARCHAR(100) NOT NULL,
                 email VARCHAR(255)  NOT NULL,
-                senha VARCHAR(255) NOT NULL
+                senha VARCHAR(255) NOT NULL,
+                ativo BOOLEAN DEFAULT TRUE
             )
             """;
         // AUTO_INCREMENT, UNIQUE
-        // ativo BOOLEAN DEFAULT TRUE
-        // data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP (futuramente usada na tabela acima)
+        // data_criacao TIMESTAMP DEFAULT -> Erro
+        // CURRENT_TIMESTAMP (futuramente usada na tabela acima)
+
 
         // When
         CreateTableParser.CreateTableContext ctx = ParserTestHelper.parseCreateTable(sql);
@@ -45,7 +47,7 @@ class AstCreateTableBuilderIntegrationTest {
 
         // Then
         assertThat(statement.tableName().getName()).isEqualTo("usuarios");
-        assertThat(statement.columns()).hasSize(4);
+        assertThat(statement.columns()).hasSize(6);
 
         // Verifica primeira coluna (id)
         assertThat(statement.columns().getFirst())
@@ -61,15 +63,14 @@ class AstCreateTableBuilderIntegrationTest {
         // Given
         String sql = """
             CREATE TABLE produtos (
-                id INT PRIMARY KEY,
+                id BIGINT PRIMARY KEY,
                 nome VARCHAR(200) NOT NULL,
-                descricao VARCHAR(100) NOT NULL,
+                descricao TEXT NOT NULL,
                 preco DECIMAL(10, 2) NOT NULL,
-                estoque INT DEFAULT 0
+                estoque INT DEFAULT 0,
+                ativo BOOLEAN DEFAULT TRUE
             )
             """;
-        // ativo BOOLEAN DEFAULT TRUE
-        // BIGINT, TEXT
 
         // When
         CreateTableParser.CreateTableContext ctx = ParserTestHelper.parseCreateTable(sql);
@@ -78,9 +79,9 @@ class AstCreateTableBuilderIntegrationTest {
         // Then
         assertThat(statement.tableName().getName()).isEqualTo("produtos");
         assertThat(statement.columns())
-                .hasSize(5)
+                .hasSize(6)
                 .extracting(ColumnDef::getColumnName)
-                .containsExactly("id", "nome", "descricao", "preco", "estoque");
+                .containsExactly("id", "nome", "descricao", "preco", "estoque", "ativo");
     }
 
     @Test
@@ -118,6 +119,7 @@ class AstCreateTableBuilderIntegrationTest {
         assertThat(statement.columns()).isNotEmpty();
     }
 
+    // Unknown data type: dbturtleparserastntmColumnDef3b8ee898 -> erro de mapeamento de coluna (colunas de tipos)
     @Test
     @DisplayName("Deve gerar SQL válido que pode ser re-parseado")
     void shouldGenerateReparseableSql() {
@@ -148,7 +150,6 @@ class AstCreateTableBuilderIntegrationTest {
                 .hasSameSizeAs(statement2.columns());
     }
 
-    // Erro por não conter todos os tipos de dados ainda.
     @Test
     @DisplayName("Deve parsear tabela com todos os tipos de dados")
     void shouldParseTableWithAllDataTypes() {
