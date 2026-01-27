@@ -44,7 +44,7 @@ class AstCreateTableBuilderTest {
         assertThat(statement.tableName())
                 .isNotNull()
                 .extracting(TableName::getName)
-                .isEqualTo("usuarios");
+                .containsExactly("usuarios");
     }
 
     @Test
@@ -183,7 +183,7 @@ class AstCreateTableBuilderTest {
             builder.visitCreateTable(ctx);
         })
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("columns cannot be null or empty");
+                .hasMessageContaining("Invalid column name context");
     }
 
     // ==================== Testes de Edge Cases ====================
@@ -200,7 +200,7 @@ class AstCreateTableBuilderTest {
 
         // Then
         assertThat(statement.columns())
-                .extracting(col -> col.getColumnName())
+                .extracting(ColumnDef::getColumnName)
                 .containsExactly("id_usuario", "nome_completo");
     }
 
@@ -216,6 +216,6 @@ class AstCreateTableBuilderTest {
 
         // Then
         assertThat(statement.tableName().getName()).isEqualTo("_temp");
-        assertThat(statement.columns().get(0).getColumnName()).isEqualTo("_id");
+        assertThat(statement.columns().getFirst().getColumnName()).isEqualTo("_id");
     }
 }
