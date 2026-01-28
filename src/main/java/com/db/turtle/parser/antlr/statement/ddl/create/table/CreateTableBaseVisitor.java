@@ -189,34 +189,45 @@ public class CreateTableBaseVisitor<T> extends AbstractParseTreeVisitor<T> imple
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitDefaultConstraint(CreateTableParser.DefaultConstraintContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitNumberDefault(CreateTableParser.NumberDefaultContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitStringDefault(CreateTableParser.StringDefaultContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitNullDefault(CreateTableParser.NullDefaultContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitTrueDefault(CreateTableParser.TrueDefaultContext ctx) { return visitChildren(ctx); }
+@Override public T visitDefaultConstraint(CreateTableParser.DefaultConstraintContext ctx) {
+    return visitChildren(ctx);
+}
+
+/**
+ * {@inheritDoc}
+ */
+@Override public T visitNumberDefault(CreateTableParser.NumberDefaultContext ctx) {
+    return visitChildren(ctx);
+}
+
+/**
+ * {@inheritDoc}
+ */
+@Override public T visitStringDefault(CreateTableParser.StringDefaultContext ctx) {
+    return visitChildren(ctx);
+}
+
+/**
+ * {@inheritDoc}
+ */
+@Override public T visitNullDefault(CreateTableParser.NullDefaultContext ctx) {
+    return visitChildren(ctx);
+}
+
+/**
+ * {@inheritDoc}
+ */
+@Override public T visitTrueDefault(CreateTableParser.TrueDefaultContext ctx) {
+    return visitChildren(ctx);
+}
+
+/**
+ * {@inheritDoc}
+ */
+@Override public T visitFalseDefault(CreateTableParser.FalseDefaultContext ctx) {
+    return visitChildren(ctx);
+}
+
 	/**
 	 * {@inheritDoc}
 	 *

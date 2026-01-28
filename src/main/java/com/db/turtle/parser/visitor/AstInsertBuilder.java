@@ -104,14 +104,15 @@ public class AstInsertBuilder extends InsertBaseVisitor<AstNode> {
     }
 
     /**
-     * Constrói um Literal tipado a partir do contexto do parser.
-     *
-     * @param ctx contexto contendo o valor literal (NUMBER, STRING ou NULL)
-     * @return Literal imutável e tipado (StringLiteral, NumberLiteral ou NullLiteral)
-     * @throws IllegalArgumentException se o tipo de literal for inválido
-     */
-    private Literal buildLiteral(InsertParser.LiteralContext ctx) {
-        // NUMBER -> NumberLiteral (preserva precisão com BigDecimal)
+/**
+ * Constrói um Literal tipado a partir do contexto do parser.
+ *
+ * @param ctx contexto contendo o valor literal (NUMBER, STRING ou NULL)
+ * @return Literal imutável e tipado (StringLiteral, NumberLiteral ou NullLiteral)
+ * @throws IllegalArgumentException se o tipo de literal for inválido
+ */
+private Literal buildLiteral(InsertParser.LiteralContext ctx) {
+
         if (ctx.NUMBER() != null) {
             String numberText = ctx.NUMBER().getText();
             return new NumberLiteral(numberText);
