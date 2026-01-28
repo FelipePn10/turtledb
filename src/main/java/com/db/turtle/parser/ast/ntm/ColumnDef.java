@@ -40,4 +40,10 @@ public class ColumnDef implements AstNode {
     public boolean hasConstraints() {
         return !constraints.isEmpty();
     }
+
+    @Override
+    public String toString() {
+        return columnName + "" + dataType +
+                (constraints.isEmpty() ? "" : ", " + constraints);
+    }
 }

@@ -3,6 +3,7 @@ package com.db.turtle.parser.ast.statements;
 import com.db.turtle.parser.ast.denominator.Statement;
 import com.db.turtle.parser.ast.ntm.ColumnDef;
 import com.db.turtle.parser.ast.ntm.TableName;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;

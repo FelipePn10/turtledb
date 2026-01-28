@@ -1,12 +1,15 @@
-// Generated from src/main/java/com/db/turtle/parser/antlr/statement/Select.g4 by ANTLR 4.13.1
+// Generated from src/main/java/com/db/turtle/parser/antlr/statement/dml/select/Select.g4 by ANTLR 4.13.1
 
 package com.db.turtle.parser.antlr.statement.dml.select;
 
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.*;
 import org.antlr.v4.runtime.tree.*;
 import java.util.List;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue"})
 public class SelectParser extends Parser {
@@ -16,9 +19,9 @@ public class SelectParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		SELECT=1, FROM=2, WHERE=3, AND=4, OR=5, NULL=6, STAR=7, COMMA=8, LEFT_PAREN=9, 
-		RIGHT_PAREN=10, EQ=11, GT=12, GE=13, LT=14, LE=15, NE=16, IDENTIFIER=17, 
-		NUMBER=18, STRING=19, WS=20;
+		SELECT=1, FROM=2, WHERE=3, AND=4, OR=5, NULL=6, TRUE=7, FALSE=8, STAR=9, 
+		COMMA=10, LEFT_PAREN=11, RIGHT_PAREN=12, EQ=13, GT=14, GE=15, LT=16, LE=17, 
+		NE=18, IDENTIFIER=19, NUMBER=20, STRING=21, WS=22;
 	public static final int
 		RULE_statement = 0, RULE_selectStatement = 1, RULE_projection = 2, RULE_column = 3, 
 		RULE_tableName = 4, RULE_whereClause = 5, RULE_booleanExpression = 6, 
@@ -35,16 +38,17 @@ public class SelectParser extends Parser {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "'SELECT'", "'FROM'", "'WHERE'", "'AND'", "'OR'", "'NULL'", "'*'", 
-			"','", "'('", "')'", "'='", "'>'", "'>='", "'<'", "'<='", "'!='"
+			null, "'SELECT'", "'FROM'", "'WHERE'", "'AND'", "'OR'", "'NULL'", "'TRUE'", 
+			"'FALSE'", "'*'", "','", "'('", "')'", "'='", "'>'", "'>='", "'<'", "'<='", 
+			"'!='"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "SELECT", "FROM", "WHERE", "AND", "OR", "NULL", "STAR", "COMMA", 
-			"LEFT_PAREN", "RIGHT_PAREN", "EQ", "GT", "GE", "LT", "LE", "NE", "IDENTIFIER", 
-			"NUMBER", "STRING", "WS"
+			null, "SELECT", "FROM", "WHERE", "AND", "OR", "NULL", "TRUE", "FALSE", 
+			"STAR", "COMMA", "LEFT_PAREN", "RIGHT_PAREN", "EQ", "GT", "GE", "LT", 
+			"LE", "NE", "IDENTIFIER", "NUMBER", "STRING", "WS"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -110,7 +114,7 @@ public class SelectParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_statement; }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SelectVisitor) return ((SelectVisitor<? extends T>)visitor).visitStatement(this);
+			if ( visitor instanceof SelectVisitor ) return ((SelectVisitor<? extends T>)visitor).visitStatement(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -677,7 +681,7 @@ public class SelectParser extends Parser {
 			{
 			setState(85);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 129024L) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 516096L) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -703,6 +707,8 @@ public class SelectParser extends Parser {
 		public TerminalNode NUMBER() { return getToken(SelectParser.NUMBER, 0); }
 		public TerminalNode STRING() { return getToken(SelectParser.STRING, 0); }
 		public TerminalNode NULL() { return getToken(SelectParser.NULL, 0); }
+		public TerminalNode TRUE() { return getToken(SelectParser.TRUE, 0); }
+		public TerminalNode FALSE() { return getToken(SelectParser.FALSE, 0); }
 		public LiteralContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -723,7 +729,7 @@ public class SelectParser extends Parser {
 			{
 			setState(87);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 786496L) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 3146176L) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -769,7 +775,7 @@ public class SelectParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\u0004\u0001\u0014Z\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
+		"\u0004\u0001\u0016Z\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
 		"\u0002\u0007\u0002\u0002\u0003\u0007\u0003\u0002\u0004\u0007\u0004\u0002"+
 		"\u0005\u0007\u0005\u0002\u0006\u0007\u0006\u0002\u0007\u0007\u0007\u0002"+
 		"\b\u0007\b\u0002\t\u0007\t\u0002\n\u0007\n\u0002\u000b\u0007\u000b\u0001"+
@@ -784,34 +790,34 @@ public class SelectParser extends Parser {
 		"\b\u0001\b\u0001\b\u0003\bP\b\b\u0001\t\u0001\t\u0001\t\u0001\t\u0001"+
 		"\n\u0001\n\u0001\u000b\u0001\u000b\u0001\u000b\u0000\u0002\f\u000e\f\u0000"+
 		"\u0002\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014\u0016\u0000\u0002\u0001"+
-		"\u0000\u000b\u0010\u0002\u0000\u0006\u0006\u0012\u0013S\u0000\u0018\u0001"+
-		"\u0000\u0000\u0000\u0002\u001b\u0001\u0000\u0000\u0000\u0004+\u0001\u0000"+
-		"\u0000\u0000\u0006-\u0001\u0000\u0000\u0000\b/\u0001\u0000\u0000\u0000"+
-		"\n1\u0001\u0000\u0000\u0000\f4\u0001\u0000\u0000\u0000\u000e?\u0001\u0000"+
-		"\u0000\u0000\u0010O\u0001\u0000\u0000\u0000\u0012Q\u0001\u0000\u0000\u0000"+
-		"\u0014U\u0001\u0000\u0000\u0000\u0016W\u0001\u0000\u0000\u0000\u0018\u0019"+
-		"\u0003\u0002\u0001\u0000\u0019\u001a\u0005\u0000\u0000\u0001\u001a\u0001"+
-		"\u0001\u0000\u0000\u0000\u001b\u001c\u0005\u0001\u0000\u0000\u001c\u001d"+
-		"\u0003\u0004\u0002\u0000\u001d\u001e\u0005\u0002\u0000\u0000\u001e \u0003"+
-		"\b\u0004\u0000\u001f!\u0003\n\u0005\u0000 \u001f\u0001\u0000\u0000\u0000"+
-		" !\u0001\u0000\u0000\u0000!\u0003\u0001\u0000\u0000\u0000\",\u0005\u0007"+
-		"\u0000\u0000#(\u0003\u0006\u0003\u0000$%\u0005\b\u0000\u0000%\'\u0003"+
-		"\u0006\u0003\u0000&$\u0001\u0000\u0000\u0000\'*\u0001\u0000\u0000\u0000"+
-		"(&\u0001\u0000\u0000\u0000()\u0001\u0000\u0000\u0000),\u0001\u0000\u0000"+
-		"\u0000*(\u0001\u0000\u0000\u0000+\"\u0001\u0000\u0000\u0000+#\u0001\u0000"+
-		"\u0000\u0000,\u0005\u0001\u0000\u0000\u0000-.\u0005\u0011\u0000\u0000"+
-		".\u0007\u0001\u0000\u0000\u0000/0\u0005\u0011\u0000\u00000\t\u0001\u0000"+
-		"\u0000\u000012\u0005\u0003\u0000\u000023\u0003\f\u0006\u00003\u000b\u0001"+
-		"\u0000\u0000\u000045\u0006\u0006\uffff\uffff\u000056\u0003\u000e\u0007"+
-		"\u00006<\u0001\u0000\u0000\u000078\n\u0002\u0000\u000089\u0005\u0005\u0000"+
-		"\u00009;\u0003\u000e\u0007\u0000:7\u0001\u0000\u0000\u0000;>\u0001\u0000"+
-		"\u0000\u0000<:\u0001\u0000\u0000\u0000<=\u0001\u0000\u0000\u0000=\r\u0001"+
-		"\u0000\u0000\u0000><\u0001\u0000\u0000\u0000?@\u0006\u0007\uffff\uffff"+
-		"\u0000@A\u0003\u0010\b\u0000AG\u0001\u0000\u0000\u0000BC\n\u0002\u0000"+
-		"\u0000CD\u0005\u0004\u0000\u0000DF\u0003\u0010\b\u0000EB\u0001\u0000\u0000"+
-		"\u0000FI\u0001\u0000\u0000\u0000GE\u0001\u0000\u0000\u0000GH\u0001\u0000"+
-		"\u0000\u0000H\u000f\u0001\u0000\u0000\u0000IG\u0001\u0000\u0000\u0000"+
-		"JK\u0005\t\u0000\u0000KL\u0003\f\u0006\u0000LM\u0005\n\u0000\u0000MP\u0001"+
+		"\u0000\r\u0012\u0002\u0000\u0006\b\u0014\u0015S\u0000\u0018\u0001\u0000"+
+		"\u0000\u0000\u0002\u001b\u0001\u0000\u0000\u0000\u0004+\u0001\u0000\u0000"+
+		"\u0000\u0006-\u0001\u0000\u0000\u0000\b/\u0001\u0000\u0000\u0000\n1\u0001"+
+		"\u0000\u0000\u0000\f4\u0001\u0000\u0000\u0000\u000e?\u0001\u0000\u0000"+
+		"\u0000\u0010O\u0001\u0000\u0000\u0000\u0012Q\u0001\u0000\u0000\u0000\u0014"+
+		"U\u0001\u0000\u0000\u0000\u0016W\u0001\u0000\u0000\u0000\u0018\u0019\u0003"+
+		"\u0002\u0001\u0000\u0019\u001a\u0005\u0000\u0000\u0001\u001a\u0001\u0001"+
+		"\u0000\u0000\u0000\u001b\u001c\u0005\u0001\u0000\u0000\u001c\u001d\u0003"+
+		"\u0004\u0002\u0000\u001d\u001e\u0005\u0002\u0000\u0000\u001e \u0003\b"+
+		"\u0004\u0000\u001f!\u0003\n\u0005\u0000 \u001f\u0001\u0000\u0000\u0000"+
+		" !\u0001\u0000\u0000\u0000!\u0003\u0001\u0000\u0000\u0000\",\u0005\t\u0000"+
+		"\u0000#(\u0003\u0006\u0003\u0000$%\u0005\n\u0000\u0000%\'\u0003\u0006"+
+		"\u0003\u0000&$\u0001\u0000\u0000\u0000\'*\u0001\u0000\u0000\u0000(&\u0001"+
+		"\u0000\u0000\u0000()\u0001\u0000\u0000\u0000),\u0001\u0000\u0000\u0000"+
+		"*(\u0001\u0000\u0000\u0000+\"\u0001\u0000\u0000\u0000+#\u0001\u0000\u0000"+
+		"\u0000,\u0005\u0001\u0000\u0000\u0000-.\u0005\u0013\u0000\u0000.\u0007"+
+		"\u0001\u0000\u0000\u0000/0\u0005\u0013\u0000\u00000\t\u0001\u0000\u0000"+
+		"\u000012\u0005\u0003\u0000\u000023\u0003\f\u0006\u00003\u000b\u0001\u0000"+
+		"\u0000\u000045\u0006\u0006\uffff\uffff\u000056\u0003\u000e\u0007\u0000"+
+		"6<\u0001\u0000\u0000\u000078\n\u0002\u0000\u000089\u0005\u0005\u0000\u0000"+
+		"9;\u0003\u000e\u0007\u0000:7\u0001\u0000\u0000\u0000;>\u0001\u0000\u0000"+
+		"\u0000<:\u0001\u0000\u0000\u0000<=\u0001\u0000\u0000\u0000=\r\u0001\u0000"+
+		"\u0000\u0000><\u0001\u0000\u0000\u0000?@\u0006\u0007\uffff\uffff\u0000"+
+		"@A\u0003\u0010\b\u0000AG\u0001\u0000\u0000\u0000BC\n\u0002\u0000\u0000"+
+		"CD\u0005\u0004\u0000\u0000DF\u0003\u0010\b\u0000EB\u0001\u0000\u0000\u0000"+
+		"FI\u0001\u0000\u0000\u0000GE\u0001\u0000\u0000\u0000GH\u0001\u0000\u0000"+
+		"\u0000H\u000f\u0001\u0000\u0000\u0000IG\u0001\u0000\u0000\u0000JK\u0005"+
+		"\u000b\u0000\u0000KL\u0003\f\u0006\u0000LM\u0005\f\u0000\u0000MP\u0001"+
 		"\u0000\u0000\u0000NP\u0003\u0012\t\u0000OJ\u0001\u0000\u0000\u0000ON\u0001"+
 		"\u0000\u0000\u0000P\u0011\u0001\u0000\u0000\u0000QR\u0003\u0006\u0003"+
 		"\u0000RS\u0003\u0014\n\u0000ST\u0003\u0016\u000b\u0000T\u0013\u0001\u0000"+

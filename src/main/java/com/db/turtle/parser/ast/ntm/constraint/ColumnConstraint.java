@@ -1,11 +1,13 @@
 package com.db.turtle.parser.ast.ntm.constraint;
 
+import com.db.turtle.parser.ast.denominator.AstNode;
+
 /**
  * Representação do tipo da constraint de uma determinada coluna.
  * Utiliza {@code ConstraintType} para saber o tipo.
  *
  * */
-public abstract class ColumnConstraint {
+public abstract class ColumnConstraint implements AstNode {
     private final ConstraintType type;
 
     protected ColumnConstraint(ConstraintType type) {

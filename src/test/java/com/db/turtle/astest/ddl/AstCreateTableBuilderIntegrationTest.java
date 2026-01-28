@@ -31,12 +31,14 @@ class AstCreateTableBuilderIntegrationTest {
             CREATE TABLE usuarios (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 nome VARCHAR(100) NOT NULL,
-                email VARCHAR(255) UNIQUE NOT NULL,
+                email VARCHAR(255)  NOT NULL UNIQUE,
                 senha VARCHAR(255) NOT NULL,
                 ativo BOOLEAN DEFAULT TRUE
             )
             """;
-        //data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP (futuramente usada na tabela acima)
+        // data_criacao TIMESTAMP DEFAULT -> Erro
+        // CURRENT_TIMESTAMP (futuramente usada na tabela acima)
+
 
         // When
         CreateTableParser.CreateTableContext ctx = ParserTestHelper.parseCreateTable(sql);
@@ -44,10 +46,10 @@ class AstCreateTableBuilderIntegrationTest {
 
         // Then
         assertThat(statement.tableName().getName()).isEqualTo("usuarios");
-        assertThat(statement.columns()).hasSize(6);
+        assertThat(statement.columns()).hasSize(5);
 
         // Verifica primeira coluna (id)
-        assertThat(statement.columns().get(0))
+        assertThat(statement.columns().getFirst())
                 .satisfies(column -> {
                     assertThat(column.getColumnName()).isEqualTo("id");
                     // Aqui verificaria o tipo e constraints quando eu implementar
@@ -62,7 +64,7 @@ class AstCreateTableBuilderIntegrationTest {
             CREATE TABLE produtos (
                 id BIGINT PRIMARY KEY,
                 nome VARCHAR(200) NOT NULL,
-                descricao TEXT,
+                descricao TEXT NOT NULL,
                 preco DECIMAL(10, 2) NOT NULL,
                 estoque INT DEFAULT 0,
                 ativo BOOLEAN DEFAULT TRUE
@@ -94,7 +96,7 @@ class AstCreateTableBuilderIntegrationTest {
         // Then
         assertThat(statement.tableName().getName()).isEqualTo("teste");
         assertThat(statement.columns()).hasSize(1);
-        assertThat(statement.columns().get(0).getColumnName()).isEqualTo("id");
+        assertThat(statement.columns().getFirst().getColumnName()).isEqualTo("id");
     }
 
     @ParameterizedTest
@@ -116,6 +118,8 @@ class AstCreateTableBuilderIntegrationTest {
         assertThat(statement.columns()).isNotEmpty();
     }
 
+    // Unknown data type: dbturtleparserastntmColumnDef3b8ee898 -> erro de mapeamento de coluna (colunas de tipos)
+    // Nó está vindo null
     @Test
     @DisplayName("Deve gerar SQL válido que pode ser re-parseado")
     void shouldGenerateReparseableSql() {

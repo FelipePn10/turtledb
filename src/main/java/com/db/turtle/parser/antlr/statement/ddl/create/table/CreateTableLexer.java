@@ -1,4 +1,4 @@
-// Generated from src/main/java/com/db/turtle/parser/antlr/ddl/create/table/CreateTable.g4 by ANTLR 4.13.1
+// Generated from src/main/java/com/db/turtle/parser/antlr/statement/ddl/create/table/CreateTable.g4 by ANTLR 4.13.1
 
 package com.db.turtle.parser.antlr.statement.ddl.create.table;
 
