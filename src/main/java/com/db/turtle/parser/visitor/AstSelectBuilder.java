@@ -4,6 +4,7 @@ import com.db.turtle.parser.antlr.statement.dml.select.SelectBaseVisitor;
 import com.db.turtle.parser.antlr.statement.dml.select.SelectParser;
 import com.db.turtle.parser.ast.denominator.AstNode;
 import com.db.turtle.parser.ast.denominator.Expression;
+import com.db.turtle.parser.ast.expression.literal.*;
 import com.db.turtle.parser.ast.statements.SelectStatement;
 import com.db.turtle.parser.ast.ntm.TableName;
 import com.db.turtle.parser.ast.expression.*;
@@ -78,35 +79,42 @@ public class AstSelectBuilder extends SelectBaseVisitor<AstNode> {
     }
 
     /**
-     * Visita o contexto de um literal e retorna uma LiteralExpression.
+     * Visita o contexto de um literal e retorna um Literal tipado.
      *
-     * Converte tokens da gramática (NUMBER, STRING, NULL) em valores Java apropriado:
-     * - NUMBER: Integer ou Double dependendo se tem ponto decimal
-     * - STRING: String com aspas removidas e escapes processados
-     * - NULL: null
-     * Sem esse método não é possível verificar o tipo de dado que está entrando.
+     * Converte tokens da gramática (NUMBER, STRING, NULL) em tipos específicos:
+     * - NUMBER: NumberLiteral (BigDecimal internamente para precisão SQL)
+     * - STRING: StringLiteral (texto sem aspas)
+     * - NULL: NullLiteral.INSTANCE
      *
      * @param ctx O contexto do literal
-     * @return Uma instância de LiteralExpression contendo o valor parseado
+     * @return Uma instância específica de Literal (StringLiteral, NumberLiteral ou NullLiteral)
      */
     @Override
     public AstNode visitLiteral(SelectParser.LiteralContext ctx) {
+        // NUMBER -> NumberLiteral (preserva precisão passando String para BigDecimal)
         if (ctx.NUMBER() != null) {
-            return new LiteralExpression(
-                    // Texto -> Double
-                    Double.parseDouble(ctx.NUMBER().getText())
-            );
+            return new NumberLiteral(ctx.NUMBER().getText());
         }
 
+        // STRING -> StringLiteral (remove aspas)
         if (ctx.STRING() != null) {
             String text = ctx.STRING().getText();
-            return new LiteralExpression(
-                    //    "\"Nome\" -> Nome
-                    text.substring(1, text.length() - 1)
-            );
+            String unquoted = text.substring(1, text.length() - 1);
+            return new StringLiteral(unquoted);
         }
 
-        return new LiteralExpression(null);
-    }
+        // NULL -> NullLiteral (singleton)
+        if (ctx.NULL() != null) {
+            return NullLiteral.INSTANCE;
+        }
 
+        if (ctx.TRUE() != null) {
+            return BooleanLiteral.TRUE;
+        }
+        if (ctx.FALSE() != null) {
+            return BooleanLiteral.FALSE;
+        }
+
+        throw new IllegalArgumentException("Unknown literal type: " + ctx.getText());
+    }
 }

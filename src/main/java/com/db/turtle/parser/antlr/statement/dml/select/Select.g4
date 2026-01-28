@@ -1,7 +1,7 @@
 grammar Select;
 
 @header {
-package com.db.turtle.parser.antlr.statement.select;
+package com.db.turtle.parser.antlr.statement.dml.select;
 }
 
 /*
@@ -85,6 +85,8 @@ literal
     : NUMBER
     | STRING
     | NULL
+    | TRUE
+    | FALSE
     ;
 
 /*
@@ -96,6 +98,8 @@ WHERE  : 'WHERE';
 AND    : 'AND';
 OR     : 'OR';
 NULL   : 'NULL';
+TRUE   :   'TRUE' ;
+FALSE  :   'FALSE';
 
 /*
  * SYMBOLS

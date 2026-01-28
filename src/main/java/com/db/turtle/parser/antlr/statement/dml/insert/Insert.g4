@@ -1,7 +1,7 @@
 grammar Insert;
 
 @header {
-package com.db.turtle.parser.antlr.statement.insert;
+package com.db.turtle.parser.antlr.statement.dml.insert;
 }
 
 /**
@@ -46,12 +46,16 @@ literal
     : NUMBER
     | STRING
     | NULL
+    | TRUE
+    | FALSE
     ;
 
 INSERT  : 'INSERT';
 INTO    :   'INTO';
 VALUES  : 'VALUES';
 NULL    :   'NULL';
+TRUE    :   'TRUE';
+FALSE   :   'FALSE';
 
 LPAREN  : '(';
 RPAREN  : ')';

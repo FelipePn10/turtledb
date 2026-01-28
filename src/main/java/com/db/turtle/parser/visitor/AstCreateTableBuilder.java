@@ -3,7 +3,7 @@ package com.db.turtle.parser.visitor;
 import com.db.turtle.parser.antlr.statement.ddl.create.table.CreateTableBaseVisitor;
 import com.db.turtle.parser.antlr.statement.ddl.create.table.CreateTableParser;
 import com.db.turtle.parser.ast.denominator.AstNode;
-import com.db.turtle.parser.ast.expression.LiteralExpression;
+import com.db.turtle.parser.ast.expression.literal.*;
 import com.db.turtle.parser.ast.ntm.ColumnDef;
 import com.db.turtle.parser.ast.ntm.ColumnName;
 import com.db.turtle.parser.ast.ntm.TableName;
@@ -198,8 +198,18 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<AstNode> {
     public AstNode visitIntType(CreateTableParser.IntTypeContext ctx) {return new IntType();}
     @Override
     public AstNode visitIntegerType(CreateTableParser.IntegerTypeContext ctx) {return new IntegerType();}
-    @Override
-    public AstNode visitCharType(CreateTableParser.CharTypeContext ctx) {int length = Integer.parseInt(ctx.NUMBER().getText());return new CharType(length);}
+/**
+ * Char é um tipo parametrizado, que necessita de um visitor para realizar o parsing,
+ * assim conseguindo extrair o seu valor da gramática e construir o tipo configurado.
+ *
+ * @param ctx Traz o tipo do contexto
+ * @return AstNode retorna o tamanho do Char num nó AST.
+ */
+@Override
+public AstNode visitCharType(CreateTableParser.CharTypeContext ctx) {
+    int length = Integer.parseInt(ctx.NUMBER().getText());
+    return new CharType(length);
+}
 
     /**
      * Varchar é um tipo parametrizado, que necessita de um visitor para realizar o parsing, assim conseguindo extrair o seu valor da gramática e construir o tipo configurado.
@@ -227,87 +237,40 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<AstNode> {
         return new DecimalType(precision, scale);
     }
 
-    // Refatoração em breve
-    /**
-     * Parseia o valor default da constraint DEFAULT
-     */
-    private Object parseDefaultValue(CreateTableParser.DefaultValueContext ctx) {
-        if (ctx == null) {
-            throw new IllegalArgumentException("Default value cannot be null");
-        }
+@Override
+public AstNode visitStringDefault(
+        CreateTableParser.StringDefaultContext ctx) {
 
-        // NUMBER
-        if (ctx.NUMBER() != null) {
-            String numberText = ctx.NUMBER().getText();
-            if (numberText.contains(".")) {
-                return Double.parseDouble(numberText);
-            } else {
-                return Integer.parseInt(numberText);
-            }
-        }
+    String quoted = ctx.STRING().getText();
+    // Remove aspas externas e trata escape ('' -> ')
+    String unquoted = quoted.substring(1, quoted.length() - 1)
+            .replace("''", "'");
+    return new StringLiteral(unquoted);
+}
 
-        // STRING
-        if (ctx.STRING() != null) {
-            String text = ctx.STRING().getText();
-            // Remove aspas do início e fim
-            return text.substring(1, text.length() - 1);
-        }
+@Override
+public AstNode visitNumberDefault(CreateTableParser.NumberDefaultContext ctx) {
+    return new NumberLiteral(ctx.NUMBER().getText());
+}
 
-        // NULL
-        if (ctx.NULL() != null) {
-            return null;
-        }
+@Override
+public AstNode visitNullDefault(
+        CreateTableParser.NullDefaultContext ctx) {
 
-        // TRUE
-        if (ctx.TRUE() != null) {
-            return true;
-        }
+    return NullLiteral.INSTANCE;
+}
 
-        // FALSE
-        if (ctx.FALSE() != null) {
-            return false;
-        }
+@Override
+public AstNode visitTrueDefault(
+        CreateTableParser.TrueDefaultContext ctx) {
 
-        throw new IllegalStateException("Unknown default value: " + ctx.getText());
-    }
+    return BooleanLiteral.TRUE;
+}
 
-//    @Override
-//    public AstNode visitNumberDefault(CreateTableParser.NumberDefaultContext ctx) {
-//        String text = ctx.NUMBER().getText();
-//
-//        if (text.contains(".")) {
-//            return new LiteralExpression(Double.parseDouble(text));
-//        }
-//
-//        return new LiteralExpression(text);
-//    }
-//
-//    @Override
-//    public AstNode visitStringDefault(
-//            CreateTableParser.StringDefaultContext ctx) {
-//
-//        String text = ctx.STRING().getText();
-//        return new StringLiteral(text.substring(1, text.length() - 1));
-//    }
-//
-//    @Override
-//    public AstNode visitNullDefault(
-//            CreateTableParser.NullDefaultContext ctx) {
-//
-//        return NullLiteral.INSTANCE;
-//    }
-//
-//    @Override
-//    public AstNode visitTrueDefault(
-//            CreateTableParser.TrueDefaultContext ctx) {
-//
-//        return BooleanLiteral.TRUE;
-//    }
-//
-//    @Override
-//    public AstNode visitFalseDefault(
-//            CreateTableParser.FalseDefaultContext ctx) {
-//
-//        return BooleanLiteral.FALSE;
-//    }
+@Override
+public AstNode visitFalseDefault(
+        CreateTableParser.FalseDefaultContext ctx) {
+
+    return BooleanLiteral.FALSE;
+  }
 }

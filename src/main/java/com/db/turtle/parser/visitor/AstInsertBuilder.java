@@ -4,7 +4,7 @@ import com.db.turtle.parser.antlr.statement.dml.insert.InsertBaseVisitor;
 import com.db.turtle.parser.antlr.statement.dml.insert.InsertParser;
 import com.db.turtle.parser.ast.denominator.AstNode;
 import com.db.turtle.parser.ast.denominator.Expression;
-import com.db.turtle.parser.ast.expression.LiteralExpression;
+import com.db.turtle.parser.ast.expression.literal.*;
 import com.db.turtle.parser.ast.ntm.ColumnName;
 import com.db.turtle.parser.ast.ntm.TableName;
 import com.db.turtle.parser.ast.statements.InsertStatement;
@@ -104,39 +104,41 @@ public class AstInsertBuilder extends InsertBaseVisitor<AstNode> {
     }
 
     /**
-     * Constrói um Literal para aceitar valores constantes vindos da query
-     *
-     * @param ctx contexto contendo o identificador da literal
-     * @return LiteralExpression imutável
-     * @throws IllegalArgumentException se o literal type for inválido
-     * */
-    private LiteralExpression buildLiteral(InsertParser.LiteralContext ctx) {
+/**
+ * Constrói um Literal tipado a partir do contexto do parser.
+ *
+ * @param ctx contexto contendo o valor literal (NUMBER, STRING ou NULL)
+ * @return Literal imutável e tipado (StringLiteral, NumberLiteral ou NullLiteral)
+ * @throws IllegalArgumentException se o tipo de literal for inválido
+ */
+private Literal buildLiteral(InsertParser.LiteralContext ctx) {
+
         if (ctx.NUMBER() != null) {
             String numberText = ctx.NUMBER().getText();
-            Object value;
+            return new NumberLiteral(numberText);
+        }
 
-            if (numberText.contains(".")) {
-                value = Double.parseDouble(numberText);
-            } else {
-                value = Integer.parseInt(numberText);
-            }
+        // STRING -> StringLiteral (remove aspas e processa escapes)
+        if (ctx.STRING() != null) {
+            String quoted = ctx.STRING().getText();
+            // Remove aspas do início e fim
+            String unquoted = quoted.substring(1, quoted.length() - 1)
+                    .replace("''", "'"); // SQL escapa aspas com aspas
+            return new StringLiteral(unquoted);
+        }
 
-            return new LiteralExpression(value);
+        // NULL -> NullLiteral (singleton)
+        if (ctx.NULL() != null) {
+            return NullLiteral.INSTANCE;
+        }
 
-        } else if (ctx.STRING() != null) {
-            String stringText = ctx.STRING().getText();
-            // Remove aspas simples do início e fim
-            String value = stringText.substring(1, stringText.length() - 1);
-            // Processa escapes básicos
-            value = value.replace("\\n", "\n")
-                    .replace("\\t", "\t")
-                    .replace("\\'", "'")
-                    .replace("\\\\", "\\");
+        // TRUE/FALSE (se sua gramática suportar literais booleanos)
+        if (ctx.TRUE() != null) {
+            return BooleanLiteral.TRUE;
+        }
 
-            return new LiteralExpression(value);
-
-        } else if (ctx.NULL() != null) {
-            return new LiteralExpression(null);
+        if (ctx.FALSE() != null) {
+            return BooleanLiteral.FALSE;
         }
 
         throw new IllegalArgumentException("Unknown literal type: " + ctx.getText());

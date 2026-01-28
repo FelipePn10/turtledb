@@ -177,14 +177,48 @@ public interface CreateTableVisitor<T> extends ParseTreeVisitor<T> {
 	/**
 	 * Visit a parse tree produced by the {@code defaultConstraint}
 	 * labeled alternative in {@link CreateTableParser#columnConstraint}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDefaultConstraint(CreateTableParser.DefaultConstraintContext ctx);
+/**
+ * @param ctx the parse tree
+ * @return the visitor result
+ */
+T visitDefaultConstraint(CreateTableParser.DefaultConstraintContext ctx);
+
+/**
+ * Visit a parse tree produced by the {@code numberDefault}
+ * labeled alternative in {@link CreateTableParser#defaultValue}.
+ * @param ctx the parse tree
+ * @return the visitor result
+ */
+T visitNumberDefault(CreateTableParser.NumberDefaultContext ctx);
+
+/**
+ * Visit a parse tree produced by the {@code stringDefault}
+ * labeled alternative in {@link CreateTableParser#defaultValue}.
+ * @param ctx the parse tree
+ * @return the visitor result
+ */
+T visitStringDefault(CreateTableParser.StringDefaultContext ctx);
+
+/**
+ * Visit a parse tree produced by the {@code nullDefault}
+ * labeled alternative in {@link CreateTableParser#defaultValue}.
+ * @param ctx the parse tree
+ * @return the visitor result
+ */
+T visitNullDefault(CreateTableParser.NullDefaultContext ctx);
+
+/**
+ * Visit a parse tree produced by the {@code trueDefault}
+ * labeled alternative in {@link CreateTableParser#defaultValue}.
+ * @param ctx the parse tree
+ * @return the visitor result
+ */
+T visitTrueDefault(CreateTableParser.TrueDefaultContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link CreateTableParser#defaultValue}.
+	 * Visit a parse tree produced by the {@code falseDefault}
+	 * labeled alternative in {@link CreateTableParser#defaultValue}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitDefaultValue(CreateTableParser.DefaultValueContext ctx);
+	T visitFalseDefault(CreateTableParser.FalseDefaultContext ctx);
 }
