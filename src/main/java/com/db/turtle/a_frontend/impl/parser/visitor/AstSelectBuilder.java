@@ -1,5 +1,7 @@
 package com.db.turtle.a_frontend.impl.parser.visitor;
 
+import com.db.turtle.a_frontend.common.denominator.D_Projection;
+import com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.create.table.CreateTableParser;
 import com.db.turtle.a_frontend.impl.parser.antlr.statement.dml.select.SelectBaseVisitor;
 import com.db.turtle.a_frontend.impl.parser.antlr.statement.dml.select.SelectParser;
 import com.db.turtle.a_frontend.common.denominator.A_AstNode;
@@ -12,6 +14,9 @@ import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.NullLiteral;
 import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.NumberLiteral;
 import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.StringLiteral;
 import com.db.turtle.a_frontend.common.commands_ast.statements.SelectStatement;
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.ColumnListProjection;
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.ColumnName;
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.StarProjection;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.TableName;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -40,23 +45,39 @@ public class AstSelectBuilder extends SelectBaseVisitor<A_AstNode> {
      */
     @Override
     public A_AstNode visitSelectStatement(SelectParser.SelectStatementContext ctx) {
-        List<B_Expression> projection = ctx.projection()
-                .column()
-                .stream()
-                // Nós Parse Tree (ANTLR) -> Nós AST Semântica
-                .map(c -> (B_Expression) visit(c))
-                .toList();
 
-        TableName table = (TableName) visitTableName(ctx.tableName());
+        D_Projection projection = buildProjection(ctx.projection());
+
+        TableName table = buildTableName(ctx.tableName());
+
         Optional<B_Expression> where = ctx.whereClause() == null
                 ? Optional.empty()
                 : Optional.of(
-                (B_Expression) visit(
-                        ctx.whereClause().booleanExpression()
-                ));
-
+                (B_Expression) visit(ctx.whereClause().booleanExpression())
+        );
 
         return new SelectStatement(projection, table, where);
+    }
+
+    private D_Projection buildProjection(SelectParser.ProjectionContext ctx) {
+        if (ctx.STAR() != null) {
+            return new StarProjection();
+        }
+
+        List<ColumnName> columns = ctx.column()
+                .stream()
+                .map(this::buildColumnName)
+                .toList();
+
+        return new ColumnListProjection(columns);
+    }
+
+    private TableName buildTableName(SelectParser.TableNameContext ctx) {
+        return new TableName(ctx.IDENTIFIER().getText());
+    }
+
+    private ColumnName buildColumnName(SelectParser.ColumnContext ctx) {
+        return new ColumnName(ctx.IDENTIFIER().getText());
     }
 
     /**

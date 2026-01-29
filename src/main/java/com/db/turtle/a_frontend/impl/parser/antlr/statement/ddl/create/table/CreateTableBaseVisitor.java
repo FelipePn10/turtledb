@@ -189,9 +189,6 @@ public class CreateTableBaseVisitor<T> extends AbstractParseTreeVisitor<T> imple
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitDefaultConstraint(CreateTableParser.DefaultConstraintContext ctx) { return visitChildren(ctx); }
-@Override public T visitDefaultConstraint(CreateTableParser.DefaultConstraintContext ctx) {
-    return visitChildren(ctx);
-}
 
 /**
  * {@inheritDoc}
@@ -218,13 +215,6 @@ public class CreateTableBaseVisitor<T> extends AbstractParseTreeVisitor<T> imple
  * {@inheritDoc}
  */
 @Override public T visitTrueDefault(CreateTableParser.TrueDefaultContext ctx) {
-    return visitChildren(ctx);
-}
-
-/**
- * {@inheritDoc}
- */
-@Override public T visitFalseDefault(CreateTableParser.FalseDefaultContext ctx) {
     return visitChildren(ctx);
 }
 
