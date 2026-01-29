@@ -1,7 +1,7 @@
 package com.db.turtle.parser.visitor;
 
-import com.db.turtle.parser.antlr.statement.ddl.create.table.CreateTableLexer;
-import com.db.turtle.parser.antlr.statement.ddl.create.table.CreateTableParser;
+import com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.create.table.CreateTableLexer;
+import com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.create.table.CreateTableParser;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
