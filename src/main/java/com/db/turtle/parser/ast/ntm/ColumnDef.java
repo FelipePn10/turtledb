@@ -8,7 +8,6 @@ import java.util.List;
 
 /**
  * Representação de uma coluna com o seu tipo e a sua constraint.
- *
  * */
 public class ColumnDef implements AstNode {
     private final ColumnName columnName;
