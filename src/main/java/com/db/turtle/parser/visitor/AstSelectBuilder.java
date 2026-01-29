@@ -8,7 +8,10 @@ import com.db.turtle.parser.ast.expression.literal.*;
 import com.db.turtle.parser.ast.statements.SelectStatement;
 import com.db.turtle.parser.ast.ntm.TableName;
 import com.db.turtle.parser.ast.expression.*;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,30 +94,29 @@ public class AstSelectBuilder extends SelectBaseVisitor<AstNode> {
      */
     @Override
     public AstNode visitLiteral(SelectParser.LiteralContext ctx) {
-        // NUMBER -> NumberLiteral (preserva precisão passando String para BigDecimal)
-        if (ctx.NUMBER() != null) {
-            return new NumberLiteral(ctx.NUMBER().getText());
-        }
 
-        // STRING -> StringLiteral (remove aspas)
-        if (ctx.STRING() != null) {
-            String text = ctx.STRING().getText();
-            String unquoted = text.substring(1, text.length() - 1);
-            return new StringLiteral(unquoted);
-        }
+        TerminalNode node = (TerminalNode) ctx.getChild(0);
+        Token token = node.getSymbol();
 
-        // NULL -> NullLiteral (singleton)
-        if (ctx.NULL() != null) {
-            return NullLiteral.INSTANCE;
-        }
+        return switch (token.getType()) {
+            case SelectParser.NUMBER ->
+                    new NumberLiteral(new BigDecimal(token.getText()));
+            case SelectParser.STRING ->
+                    new StringLiteral(unquote(token.getText()));
 
-        if (ctx.TRUE() != null) {
-            return BooleanLiteral.TRUE;
-        }
-        if (ctx.FALSE() != null) {
-            return BooleanLiteral.FALSE;
-        }
 
-        throw new IllegalArgumentException("Unknown literal type: " + ctx.getText());
+            case SelectParser.NULL -> NullLiteral.INSTANCE;
+            case SelectParser.TRUE -> BooleanLiteral.TRUE;
+            case SelectParser.FALSE -> BooleanLiteral.FALSE;
+
+            default -> throw new IllegalArgumentException(
+                    "Unknown literal: " + token.getText()
+            );
+        };
+    }
+
+    private static String unquote(String quoted) {
+        return quoted.substring(1, quoted.length() - 1)
+                .replace("''", "'");
     }
 }

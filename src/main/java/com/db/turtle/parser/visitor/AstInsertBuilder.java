@@ -1,6 +1,7 @@
 package com.db.turtle.parser.visitor;
 
 import com.db.turtle.parser.antlr.statement.dml.insert.InsertBaseVisitor;
+import com.db.turtle.parser.antlr.statement.dml.insert.InsertLexer;
 import com.db.turtle.parser.antlr.statement.dml.insert.InsertParser;
 import com.db.turtle.parser.ast.denominator.AstNode;
 import com.db.turtle.parser.ast.denominator.Expression;
@@ -8,7 +9,10 @@ import com.db.turtle.parser.ast.expression.literal.*;
 import com.db.turtle.parser.ast.ntm.ColumnName;
 import com.db.turtle.parser.ast.ntm.TableName;
 import com.db.turtle.parser.ast.statements.InsertStatement;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -111,36 +115,29 @@ public class AstInsertBuilder extends InsertBaseVisitor<AstNode> {
      * @throws IllegalArgumentException se o tipo de literal for inválido
      */
     private Literal buildLiteral(InsertParser.LiteralContext ctx) {
-        // NUMBER -> NumberLiteral (preserva precisão com BigDecimal)
-        if (ctx.NUMBER() != null) {
-            String numberText = ctx.NUMBER().getText();
-            return new NumberLiteral(numberText);
-        }
+        TerminalNode node = (TerminalNode) ctx.getChild(0);
+        Token token = node.getSymbol();
 
-        // STRING -> StringLiteral (remove aspas e processa escapes)
-        if (ctx.STRING() != null) {
-            String quoted = ctx.STRING().getText();
-            // Remove aspas do início e fim
-            String unquoted = quoted.substring(1, quoted.length() - 1)
-                    .replace("''", "'"); // SQL escapa aspas com aspas
-            return new StringLiteral(unquoted);
-        }
+        return switch (token.getType()) {
+            case InsertLexer.NUMBER ->
+                    new NumberLiteral(new BigDecimal(token.getText()));
 
-        // NULL -> NullLiteral (singleton)
-        if (ctx.NULL() != null) {
-            return NullLiteral.INSTANCE;
-        }
+            case InsertLexer.STRING ->
+                    new StringLiteral(unquote(token.getText()));
 
-        // TRUE/FALSE (se sua gramática suportar literais booleanos)
-        if (ctx.TRUE() != null) {
-            return BooleanLiteral.TRUE;
-        }
+            case InsertLexer.NULL -> NullLiteral.INSTANCE;
+            case InsertLexer.TRUE -> BooleanLiteral.TRUE;
+            case InsertLexer.FALSE -> BooleanLiteral.FALSE;
 
-        if (ctx.FALSE() != null) {
-            return BooleanLiteral.FALSE;
-        }
+            default -> throw new IllegalArgumentException(
+                    "Unknown literal: " + token.getText()
+            );
+        };
+    }
 
-        throw new IllegalArgumentException("Unknown literal type: " + ctx.getText());
+    private static String unquote(String quoted) {
+        return quoted.substring(1, quoted.length() - 1)
+                .replace("''", "'");
     }
 
     /**
