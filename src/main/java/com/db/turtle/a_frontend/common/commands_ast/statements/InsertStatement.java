@@ -1,7 +1,7 @@
-package com.db.turtle.a_frontend.impl.parser.ast.statements;
+package com.db.turtle.a_frontend.common.commands_ast.statements;
 
-import com.db.turtle.a_frontend.impl.parser.ast.denominator.Expression;
-import com.db.turtle.a_frontend.impl.parser.ast.denominator.Statement;
+import com.db.turtle.a_frontend.common.denominator.B_Expression;
+import com.db.turtle.a_frontend.common.denominator.C_Statement;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.ColumnName;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.TableName;
 
@@ -11,8 +11,8 @@ import java.util.Objects;
 public record InsertStatement(
         TableName table,
         List<ColumnName> columns,
-        List<Expression> values
-) implements Statement {
+        List<B_Expression> values
+) implements C_Statement {
 
     public InsertStatement {
         Objects.requireNonNull(table);
@@ -31,7 +31,7 @@ public record InsertStatement(
         return columns;
     }
 
-    public List<Expression> getValues() {
+    public List<B_Expression> getValues() {
         return values;
     }
 }

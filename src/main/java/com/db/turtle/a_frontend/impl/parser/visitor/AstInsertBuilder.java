@@ -3,14 +3,12 @@ package com.db.turtle.a_frontend.impl.parser.visitor;
 import com.db.turtle.a_frontend.impl.parser.antlr.statement.dml.insert.InsertBaseVisitor;
 import com.db.turtle.a_frontend.impl.parser.antlr.statement.dml.insert.InsertLexer;
 import com.db.turtle.a_frontend.impl.parser.antlr.statement.dml.insert.InsertParser;
-import com.db.turtle.a_frontend.impl.parser.ast.denominator.AstNode;
-import com.db.turtle.a_frontend.impl.parser.ast.denominator.Expression;
+import com.db.turtle.a_frontend.common.denominator.A_AstNode;
+import com.db.turtle.a_frontend.common.denominator.B_Expression;
 import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.*;
-import com.db.turtle.a_frontend.parser.ast.expression.literal.*;
-import com.db.turtle.parser.ast.expression.literal.*;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.ColumnName;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.TableName;
-import com.db.turtle.a_frontend.impl.parser.ast.statements.InsertStatement;
+import com.db.turtle.a_frontend.common.commands_ast.statements.InsertStatement;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -21,7 +19,7 @@ import java.util.List;
  * Visitor que constrói a AST (Abstract Syntax Tree) a partir do parse tree
  * gerado pelo ANTLR para comandos INSERT.
  */
-public class AstInsertBuilder extends InsertBaseVisitor<AstNode> {
+public class AstInsertBuilder extends InsertBaseVisitor<A_AstNode> {
     /**
      * Transforma o contexto de uma regra de inserção da árvore de parsing num nó da AST.
      * <p>
@@ -34,7 +32,7 @@ public class AstInsertBuilder extends InsertBaseVisitor<AstNode> {
      * @see InsertStatement
      */
     @Override
-    public AstNode visitInsertStatement(InsertParser.InsertStatementContext ctx) {
+    public A_AstNode visitInsertStatement(InsertParser.InsertStatementContext ctx) {
         TableName table = (TableName) visitTableName(ctx.tableName());
 
         List<ColumnName> colum =
@@ -46,10 +44,10 @@ public class AstInsertBuilder extends InsertBaseVisitor<AstNode> {
                         .map(c -> (ColumnName) visitColumn(c))
                         .toList();
 
-        List<Expression> values = ctx.valueList()
+        List<B_Expression> values = ctx.valueList()
                 .literal()
                 .stream()
-                .map(l -> (Expression) visitLiteral(l))
+                .map(l -> (B_Expression) visitLiteral(l))
                 .toList();
 
         return new InsertStatement(table, colum, values);
@@ -62,7 +60,7 @@ public class AstInsertBuilder extends InsertBaseVisitor<AstNode> {
      * @return Uma instância de ColumnName
      */
     @Override
-    public AstNode visitTableName(InsertParser.TableNameContext ctx) {
+    public A_AstNode visitTableName(InsertParser.TableNameContext ctx) {
         return buildTableName(ctx);
     }
 
@@ -73,7 +71,7 @@ public class AstInsertBuilder extends InsertBaseVisitor<AstNode> {
      * @return Uma instância de ColumnName
      */
     @Override
-    public AstNode visitColumn(InsertParser.ColumnContext ctx) {
+    public A_AstNode visitColumn(InsertParser.ColumnContext ctx) {
         return buildColumnName(ctx);
     }
 
@@ -90,7 +88,7 @@ public class AstInsertBuilder extends InsertBaseVisitor<AstNode> {
      * @return Uma instância de LiteralExpression contendo o valor parseado
      */
     @Override
-    public AstNode visitLiteral(InsertParser.LiteralContext ctx) {
+    public A_AstNode visitLiteral(InsertParser.LiteralContext ctx) {
         return buildLiteral(ctx);
     }
 

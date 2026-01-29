@@ -1,6 +1,6 @@
 package com.db.turtle.a_frontend.impl.parser.ast.expression;
 
-import com.db.turtle.a_frontend.impl.parser.ast.denominator.Expression;
+import com.db.turtle.a_frontend.common.denominator.B_Expression;
 
 /**
  * Representa operações entre duas expressões.
@@ -8,15 +8,15 @@ import com.db.turtle.a_frontend.impl.parser.ast.denominator.Expression;
  * Conceito: (left) operador (right)
  * @author Felipe Panosso
  * */
-public class BinaryExpression implements Expression {
-    public final Expression left;
+public class BinaryExpression implements B_Expression {
+    public final B_Expression left;
     public final ComparisonOperator operator;
-    public final Expression right;
+    public final B_Expression right;
 
     public BinaryExpression(
-            Expression left,
+            B_Expression left,
             ComparisonOperator operator,
-            Expression right
+            B_Expression right
     ) {
         this.left = left;
         this.operator = operator;

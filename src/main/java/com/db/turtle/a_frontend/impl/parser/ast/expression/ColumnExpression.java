@@ -1,6 +1,6 @@
 package com.db.turtle.a_frontend.impl.parser.ast.expression;
 
-import com.db.turtle.a_frontend.impl.parser.ast.denominator.Expression;
+import com.db.turtle.a_frontend.common.denominator.B_Expression;
 
 /**
  * Aponta para uma coluna lógica.
@@ -9,7 +9,7 @@ import com.db.turtle.a_frontend.impl.parser.ast.denominator.Expression;
  *  Não acessa dados, apenas descreve intenção.
  * </p>
  * */
-public class ColumnExpression implements Expression {
+public class ColumnExpression implements B_Expression {
     public final String columnName;
 
     public ColumnExpression(String columnName) {

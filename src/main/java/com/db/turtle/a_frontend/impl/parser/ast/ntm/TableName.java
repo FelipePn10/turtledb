@@ -1,11 +1,11 @@
 package com.db.turtle.a_frontend.impl.parser.ast.ntm;
 
-import com.db.turtle.a_frontend.impl.parser.ast.denominator.AstNode;
+import com.db.turtle.a_frontend.common.denominator.A_AstNode;
 
 /**
  * Representação formal do nome de uma Tabela
  * */
-public final class TableName implements AstNode {
+public final class TableName implements A_AstNode {
 
     private final String name;
 

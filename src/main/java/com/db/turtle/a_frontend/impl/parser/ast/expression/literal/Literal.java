@@ -1,13 +1,13 @@
 package com.db.turtle.a_frontend.impl.parser.ast.expression.literal;
 
 
-import com.db.turtle.a_frontend.impl.parser.ast.denominator.Expression;
+import com.db.turtle.a_frontend.common.denominator.B_Expression;
 
 /**
  * Valor constante conhecido em tempo de compilação.
  * Exemplos: 42, "hello", true, null, 3.14
  */
-public sealed interface Literal extends Expression
+public sealed interface Literal extends B_Expression
     permits StringLiteral, NumberLiteral, BooleanLiteral, NullLiteral{
     /**
      * Retorna o valor Java correspondente (para avaliação constante).

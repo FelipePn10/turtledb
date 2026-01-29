@@ -1,4 +1,4 @@
-package com.db.turtle.a_frontend.impl.parser.ast.denominator;
+package com.db.turtle.a_frontend.common.denominator;
 
 import com.db.turtle.a_frontend.impl.parser.ast.expression.BinaryExpression;
 
@@ -9,5 +9,5 @@ import com.db.turtle.a_frontend.impl.parser.ast.expression.BinaryExpression;
  *     Exemplo: {@link BinaryExpression}
  * </p>
  * */
-public interface Expression extends AstNode {
+public interface B_Expression extends A_AstNode {
 }
