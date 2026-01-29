@@ -54,12 +54,16 @@ columnConstraint
     ;
 
 defaultValue
+defaultValue
     : NUMBER                    #numberDefault
     | STRING                    #stringDefault
     | NULL                      #nullDefault
     | TRUE                      #trueDefault
     | FALSE                     #falseDefault
     ;
+
+
+
 
 
 

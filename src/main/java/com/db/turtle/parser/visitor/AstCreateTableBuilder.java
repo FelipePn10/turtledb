@@ -10,6 +10,7 @@ import com.db.turtle.parser.ast.ntm.TableName;
 import com.db.turtle.parser.ast.ntm.constraint.*;
 import com.db.turtle.parser.ast.ntm.types.*;
 import com.db.turtle.parser.ast.statements.CreateTableStatement;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.List;
 
@@ -197,17 +198,18 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<AstNode> {
     public AstNode visitIntType(CreateTableParser.IntTypeContext ctx) {return new IntType();}
     @Override
     public AstNode visitIntegerType(CreateTableParser.IntegerTypeContext ctx) {return new IntegerType();}
-
-    /**
-     * Char é um tipo parametrizado, que necessita de um visitor para realizar o parsing, assim conseguindo extrair o seu valor da gramática e construir o tipo configurado.
-     * @param ctx Traz o tipo do contexto
-     * @return AstNode retorna o tamanho do Char num nó AST.
-     * */
-    @Override
-    public AstNode visitCharType(CreateTableParser.CharTypeContext ctx) {
-        int length = Integer.parseInt(ctx.NUMBER().getText());
-        return new CharType(length);
-    }
+/**
+ * Char é um tipo parametrizado, que necessita de um visitor para realizar o parsing,
+ * assim conseguindo extrair o seu valor da gramática e construir o tipo configurado.
+ *
+ * @param ctx Traz o tipo do contexto
+ * @return AstNode retorna o tamanho do Char num nó AST.
+ */
+@Override
+public AstNode visitCharType(CreateTableParser.CharTypeContext ctx) {
+    int length = Integer.parseInt(ctx.NUMBER().getText());
+    return new CharType(length);
+}
 
     /**
      * Varchar é um tipo parametrizado, que necessita de um visitor para realizar o parsing, assim conseguindo extrair o seu valor da gramática e construir o tipo configurado.
@@ -235,41 +237,40 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<AstNode> {
         return new DecimalType(precision, scale);
     }
 
-    @Override
-    public AstNode visitStringDefault(
-            CreateTableParser.StringDefaultContext ctx) {
+@Override
+public AstNode visitStringDefault(
+        CreateTableParser.StringDefaultContext ctx) {
 
-        String quoted = ctx.STRING().getText();
-        // Remove aspas externas e trata escape ('' -> ')
-        String unquoted = quoted.substring(1, quoted.length() - 1)
-                .replace("''", "'");
-        return new StringLiteral(unquoted);
-    }
+    String quoted = ctx.STRING().getText();
+    // Remove aspas externas e trata escape ('' -> ')
+    String unquoted = quoted.substring(1, quoted.length() - 1)
+            .replace("''", "'");
+    return new StringLiteral(unquoted);
+}
 
-    @Override
-    public AstNode visitNumberDefault(CreateTableParser.NumberDefaultContext ctx) {
-        return new NumberLiteral(ctx.NUMBER().getText());
-    }
+@Override
+public AstNode visitNumberDefault(CreateTableParser.NumberDefaultContext ctx) {
+    return new NumberLiteral(ctx.NUMBER().getText());
+}
 
-    @Override
-    public AstNode visitNullDefault(
-            CreateTableParser.NullDefaultContext ctx) {
+@Override
+public AstNode visitNullDefault(
+        CreateTableParser.NullDefaultContext ctx) {
 
-        return NullLiteral.INSTANCE;
-    }
+    return NullLiteral.INSTANCE;
+}
 
+@Override
+public AstNode visitTrueDefault(
+        CreateTableParser.TrueDefaultContext ctx) {
 
-    @Override
-    public AstNode visitTrueDefault(
-            CreateTableParser.TrueDefaultContext ctx) {
+    return BooleanLiteral.TRUE;
+}
 
-        return BooleanLiteral.TRUE;
-    }
+@Override
+public AstNode visitFalseDefault(
+        CreateTableParser.FalseDefaultContext ctx) {
 
-    @Override
-    public AstNode visitFalseDefault(
-            CreateTableParser.FalseDefaultContext ctx) {
-
-        return BooleanLiteral.FALSE;
-    }
+    return BooleanLiteral.FALSE;
+  }
 }
