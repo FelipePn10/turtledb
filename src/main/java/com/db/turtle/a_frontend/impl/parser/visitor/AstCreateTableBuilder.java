@@ -66,10 +66,6 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<A_AstNode> {
      * @throws IllegalArgumentException se o contexto for inválido
      */
     private ColumnDef buildColumnDef(CreateTableParser.ColumnDefContext ctx) {
-        if (ctx == null) {
-            throw new IllegalArgumentException("Invalid column definition context");
-        }
-
         ColumnName columnName = buildColumnName(ctx.columnName());
         DataType dataType = buildDataType(ctx.dataType());
         List<ColumnConstraint> constraints = buildConstraints(ctx.columnConstraints());
@@ -128,7 +124,7 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<A_AstNode> {
     private List<ColumnConstraint> buildConstraints(
             CreateTableParser.ColumnConstraintsContext ctx
     ) {
-        if (ctx == null || ctx.columnConstraint() == null) {
+        if (ctx.columnConstraint() == null) {
             return List.of();
         }
 
@@ -149,10 +145,6 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<A_AstNode> {
      * @throws IllegalStateException se o visitor retornar tipo inesperado
      */
     private ColumnConstraint buildColumnConstraint(CreateTableParser.ColumnConstraintContext ctx) {
-        if (ctx == null) {
-            throw new IllegalArgumentException("Invalid constraint context");
-        }
-
         // Delega para o visitor específico via contexto ANTLR (NOT NULL, PRIMARY KEY, etc)
         A_AstNode node = visit(ctx);
 

@@ -54,7 +54,6 @@ columnConstraint
     ;
 
 defaultValue
-defaultValue
     : NUMBER                    #numberDefault
     | STRING                    #stringDefault
     | NULL                      #nullDefault
