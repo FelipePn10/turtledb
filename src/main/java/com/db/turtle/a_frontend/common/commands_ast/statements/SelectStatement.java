@@ -1,7 +1,7 @@
-package com.db.turtle.a_frontend.impl.parser.ast.statements;
+package com.db.turtle.a_frontend.common.commands_ast.statements;
 
-import com.db.turtle.a_frontend.impl.parser.ast.denominator.Statement;
-import com.db.turtle.a_frontend.impl.parser.ast.denominator.Expression;
+import com.db.turtle.a_frontend.common.denominator.C_Statement;
+import com.db.turtle.a_frontend.common.denominator.B_Expression;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.TableName;
 
 import java.util.List;
@@ -9,10 +9,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 public record SelectStatement(
-        List<Expression> projection,
+        List<B_Expression> projection,
         TableName table,
-        Optional<Expression> where
-) implements Statement {
+        Optional<B_Expression> where
+) implements C_Statement {
     public SelectStatement {
         Objects.requireNonNull(projection);
         Objects.requireNonNull(table);
@@ -21,7 +21,7 @@ public record SelectStatement(
 
     }
 
-    public List<Expression> getProjection() {
+    public List<B_Expression> getProjection() {
         return projection;
     }
 
@@ -29,7 +29,7 @@ public record SelectStatement(
         return table;
     }
 
-    public Optional<Expression> getWhere() {
+    public Optional<B_Expression> getWhere() {
         return where;
     }
 }

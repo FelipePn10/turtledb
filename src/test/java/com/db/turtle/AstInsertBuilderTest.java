@@ -4,7 +4,7 @@ package com.db.turtle;
 import com.db.turtle.a_frontend.impl.parser.antlr.statement.dml.insert.InsertLexer;
 import com.db.turtle.a_frontend.impl.parser.antlr.statement.dml.insert.InsertParser;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.TableName;
-import com.db.turtle.a_frontend.impl.parser.ast.statements.InsertStatement;
+import com.db.turtle.a_frontend.common.commands_ast.statements.InsertStatement;
 import com.db.turtle.a_frontend.impl.parser.visitor.AstInsertBuilder;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;

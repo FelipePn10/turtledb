@@ -1,6 +1,6 @@
-package com.db.turtle.a_frontend.impl.parser.ast.statements;
+package com.db.turtle.a_frontend.common.commands_ast.statements;
 
-import com.db.turtle.a_frontend.impl.parser.ast.denominator.Statement;
+import com.db.turtle.a_frontend.common.denominator.C_Statement;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.ColumnDef;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.TableName;
 
@@ -14,7 +14,7 @@ import java.util.List;
 public record CreateTableStatement(
         TableName tableName,
         List<ColumnDef> columns
-) implements Statement {
+) implements C_Statement {
     /**
      * Construtor compacto - valida os parâmetros antes de criar o objeto.
      * Também cria uma cópia imutável da lista de colunas para evitar

@@ -2,22 +2,17 @@ package com.db.turtle.a_frontend.impl.parser.visitor;
 
 import com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.create.table.CreateTableBaseVisitor;
 import com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.create.table.CreateTableParser;
-import com.db.turtle.a_frontend.impl.parser.ast.denominator.AstNode;
+import com.db.turtle.a_frontend.common.denominator.A_AstNode;
 import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.BooleanLiteral;
 import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.NullLiteral;
 import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.NumberLiteral;
 import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.StringLiteral;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.constraint.*;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.*;
-import com.db.turtle.a_frontend.parser.ast.ntm.constraint.*;
-import com.db.turtle.a_frontend.parser.ast.ntm.types.*;
-import com.db.turtle.parser.ast.expression.literal.*;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.ColumnDef;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.ColumnName;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.TableName;
-import com.db.turtle.parser.ast.ntm.constraint.*;
-import com.db.turtle.parser.ast.ntm.types.*;
-import com.db.turtle.a_frontend.impl.parser.ast.statements.CreateTableStatement;
+import com.db.turtle.a_frontend.common.commands_ast.statements.CreateTableStatement;
 
 import java.util.List;
 
@@ -25,10 +20,10 @@ import java.util.List;
  * Visitor que constrói a AST (Abstract Syntax Tree) a partir do parse tree
  * gerado pelo ANTLR para comandos CREATE TABLE.
  */
-public class AstCreateTableBuilder extends CreateTableBaseVisitor<AstNode> {
+public class AstCreateTableBuilder extends CreateTableBaseVisitor<A_AstNode> {
 
     @Override
-    public AstNode visitCreateTable(CreateTableParser.CreateTableContext ctx) {
+    public A_AstNode visitCreateTable(CreateTableParser.CreateTableContext ctx) {
         TableName table = buildTableName(ctx.tableName());
 
         List<ColumnDef> columns = ctx.columnDef()
@@ -40,12 +35,12 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<AstNode> {
     }
 
     @Override
-    public AstNode visitTableName(CreateTableParser.TableNameContext ctx) {
+    public A_AstNode visitTableName(CreateTableParser.TableNameContext ctx) {
         return buildTableName(ctx);
     }
 
     @Override
-    public AstNode visitColumnDef(CreateTableParser.ColumnDefContext ctx) {
+    public A_AstNode visitColumnDef(CreateTableParser.ColumnDefContext ctx) {
         return buildColumnDef(ctx);
     }
 
@@ -112,7 +107,7 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<AstNode> {
         }
 
         // Delega para o visitor específico via contexto ANTLR (VARCHAR, INT, etc)
-        AstNode node = visit(ctx);
+        A_AstNode node = visit(ctx);
 
         if (!(node instanceof DataType)) {
             throw new IllegalStateException(
@@ -159,7 +154,7 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<AstNode> {
         }
 
         // Delega para o visitor específico via contexto ANTLR (NOT NULL, PRIMARY KEY, etc)
-        AstNode node = visit(ctx);
+        A_AstNode node = visit(ctx);
 
         if (!(node instanceof ColumnConstraint)) {
             throw new IllegalStateException(
@@ -172,39 +167,40 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<AstNode> {
 
     // visitors de constraint triviais que apenas constroem o nó da AST
     @Override
-    public AstNode visitNotNullConstraint(CreateTableParser.NotNullConstraintContext ctx) {return new NotNullConstraint();}
+    public A_AstNode visitNotNullConstraint(CreateTableParser.NotNullConstraintContext ctx) {return new NotNullConstraint();}
     @Override
-    public AstNode visitNullConstraint(CreateTableParser.NullConstraintContext ctx) {return new NullConstraint();}
+    public A_AstNode visitNullConstraint(CreateTableParser.NullConstraintContext ctx) {return new NullConstraint();}
     @Override
-    public AstNode visitPrimaryKeyConstraint(CreateTableParser.PrimaryKeyConstraintContext ctx) {return new PrimaryKeyConstraint();}
+    public A_AstNode visitPrimaryKeyConstraint(CreateTableParser.PrimaryKeyConstraintContext ctx) {return new PrimaryKeyConstraint();}
     @Override
-    public AstNode visitUniqueConstraint(CreateTableParser.UniqueConstraintContext ctx) {return new UniqueConstraint();}
+    public A_AstNode visitUniqueConstraint(CreateTableParser.UniqueConstraintContext ctx) {return new UniqueConstraint();}
     @Override
-    public AstNode visitAutoIncrementConstraint(CreateTableParser.AutoIncrementConstraintContext ctx) {return new AutoIncrementConstraint();}
+    public A_AstNode visitAutoIncrementConstraint(CreateTableParser.AutoIncrementConstraintContext ctx) {return new AutoIncrementConstraint();}
     @Override
-    public AstNode visitDefaultConstraint(CreateTableParser.DefaultConstraintContext ctx) {AstNode value = visit(ctx.defaultValue());return new DefaultConstraint(value);}
+    public A_AstNode visitDefaultConstraint(CreateTableParser.DefaultConstraintContext ctx) {
+        A_AstNode value = visit(ctx.defaultValue());return new DefaultConstraint(value);}
 
     // visitors de tipos triviais que apenas constroem o nó da AST
     @Override
-    public AstNode visitBigintType(CreateTableParser.BigintTypeContext ctx) {return new BigIntType();}
+    public A_AstNode visitBigintType(CreateTableParser.BigintTypeContext ctx) {return new BigIntType();}
     @Override
-    public AstNode visitFloatType(CreateTableParser.FloatTypeContext ctx) {return new FloatType();}
+    public A_AstNode visitFloatType(CreateTableParser.FloatTypeContext ctx) {return new FloatType();}
     @Override
-    public AstNode visitDoubleType(CreateTableParser.DoubleTypeContext ctx) {return new DoubleType();}
+    public A_AstNode visitDoubleType(CreateTableParser.DoubleTypeContext ctx) {return new DoubleType();}
     @Override
-    public AstNode visitDateType(CreateTableParser.DateTypeContext ctx) {return new DateType();}
+    public A_AstNode visitDateType(CreateTableParser.DateTypeContext ctx) {return new DateType();}
     @Override
-    public AstNode visitDatetimeType(CreateTableParser.DatetimeTypeContext ctx) {return new DateTimeType();}
+    public A_AstNode visitDatetimeType(CreateTableParser.DatetimeTypeContext ctx) {return new DateTimeType();}
     @Override
-    public AstNode visitTimestampType(CreateTableParser.TimestampTypeContext ctx) {return new TimestampType();}
+    public A_AstNode visitTimestampType(CreateTableParser.TimestampTypeContext ctx) {return new TimestampType();}
     @Override
-    public AstNode visitTextType(CreateTableParser.TextTypeContext ctx) {return new TextType();}
+    public A_AstNode visitTextType(CreateTableParser.TextTypeContext ctx) {return new TextType();}
     @Override
-    public AstNode visitBooleanType(CreateTableParser.BooleanTypeContext ctx) {return new BooleanType();}
+    public A_AstNode visitBooleanType(CreateTableParser.BooleanTypeContext ctx) {return new BooleanType();}
     @Override
-    public AstNode visitIntType(CreateTableParser.IntTypeContext ctx) {return new IntType();}
+    public A_AstNode visitIntType(CreateTableParser.IntTypeContext ctx) {return new IntType();}
     @Override
-    public AstNode visitIntegerType(CreateTableParser.IntegerTypeContext ctx) {return new IntegerType();}
+    public A_AstNode visitIntegerType(CreateTableParser.IntegerTypeContext ctx) {return new IntegerType();}
 /**
  * Char é um tipo parametrizado, que necessita de um visitor para realizar o parsing,
  * assim conseguindo extrair o seu valor da gramática e construir o tipo configurado.
@@ -213,7 +209,7 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<AstNode> {
  * @return AstNode retorna o tamanho do Char num nó AST.
  */
 @Override
-public AstNode visitCharType(CreateTableParser.CharTypeContext ctx) {
+public A_AstNode visitCharType(CreateTableParser.CharTypeContext ctx) {
     int length = Integer.parseInt(ctx.NUMBER().getText());
     return new CharType(length);
 }
@@ -224,7 +220,7 @@ public AstNode visitCharType(CreateTableParser.CharTypeContext ctx) {
      * @return AstNode retorna o tamanho do Varchar num nó AST.
      * */
     @Override
-    public AstNode visitVarcharType(CreateTableParser.VarcharTypeContext ctx) {
+    public A_AstNode visitVarcharType(CreateTableParser.VarcharTypeContext ctx) {
         int length = Integer.parseInt(ctx.NUMBER().getText());
         return new VarcharType(length);
     }
@@ -235,7 +231,7 @@ public AstNode visitCharType(CreateTableParser.CharTypeContext ctx) {
      * @return AstNode retorna precison e a scale do Decimal num nó AST.
      * */
     @Override
-    public AstNode visitDecimalType(CreateTableParser.DecimalTypeContext ctx) {
+    public A_AstNode visitDecimalType(CreateTableParser.DecimalTypeContext ctx) {
         int precision = Integer.parseInt(ctx.NUMBER(0).getText());
         Integer scale = ctx.NUMBER().size() > 1
                 ? Integer.parseInt(ctx.NUMBER(1).getText())
@@ -245,7 +241,7 @@ public AstNode visitCharType(CreateTableParser.CharTypeContext ctx) {
     }
 
 @Override
-public AstNode visitStringDefault(
+public A_AstNode visitStringDefault(
         CreateTableParser.StringDefaultContext ctx) {
 
     String quoted = ctx.STRING().getText();
@@ -256,26 +252,26 @@ public AstNode visitStringDefault(
 }
 
 @Override
-public AstNode visitNumberDefault(CreateTableParser.NumberDefaultContext ctx) {
+public A_AstNode visitNumberDefault(CreateTableParser.NumberDefaultContext ctx) {
     return new NumberLiteral(ctx.NUMBER().getText());
 }
 
 @Override
-public AstNode visitNullDefault(
+public A_AstNode visitNullDefault(
         CreateTableParser.NullDefaultContext ctx) {
 
     return NullLiteral.INSTANCE;
 }
 
 @Override
-public AstNode visitTrueDefault(
+public A_AstNode visitTrueDefault(
         CreateTableParser.TrueDefaultContext ctx) {
 
     return BooleanLiteral.TRUE;
 }
 
 @Override
-public AstNode visitFalseDefault(
+public A_AstNode visitFalseDefault(
         CreateTableParser.FalseDefaultContext ctx) {
 
     return BooleanLiteral.FALSE;

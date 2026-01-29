@@ -1,11 +1,11 @@
 package com.db.turtle.a_frontend.impl.parser.ast.ntm;
 
-import com.db.turtle.a_frontend.impl.parser.ast.denominator.AstNode;
+import com.db.turtle.a_frontend.common.denominator.A_AstNode;
 
 /**
  * Representação formal do nome de uma coluna
  * */
-public class ColumnName implements AstNode {
+public class ColumnName implements A_AstNode {
     private String name;
     public ColumnName(String name) {
         this.name = name;
