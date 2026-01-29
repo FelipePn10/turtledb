@@ -1,8 +1,8 @@
 package com.db.turtle.astest.ddl;
 
-import com.db.turtle.parser.antlr.statement.ddl.create.table.CreateTableParser;
-import com.db.turtle.parser.ast.statements.CreateTableStatement;
-import com.db.turtle.parser.visitor.AstCreateTableBuilder;
+import com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.create.table.CreateTableParser;
+import com.db.turtle.a_frontend.impl.parser.ast.statements.CreateTableStatement;
+import com.db.turtle.a_frontend.impl.parser.visitor.AstCreateTableBuilder;
 import com.db.turtle.parser.visitor.ParserTestHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
