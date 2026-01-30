@@ -52,9 +52,6 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<A_AstNode> {
      * @throws IllegalArgumentException se o contexto for inválido
      */
     private TableName buildTableName(CreateTableParser.TableNameContext ctx) {
-        if (ctx == null || ctx.IDENTIFIER() == null) {
-            throw new IllegalArgumentException("Invalid table name context");
-        }
         return new TableName(ctx.IDENTIFIER().getText());
     }
 
@@ -81,9 +78,6 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<A_AstNode> {
      * @throws IllegalArgumentException se o contexto for inválido
      */
     private ColumnName buildColumnName(CreateTableParser.ColumnNameContext ctx) {
-        if (ctx == null || ctx.IDENTIFIER() == null) {
-            throw new IllegalArgumentException("Invalid column name context");
-        }
         return new ColumnName(ctx.IDENTIFIER().getText());
     }
 
@@ -98,10 +92,6 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<A_AstNode> {
      * @throws IllegalStateException se o visitor retornar tipo inesperado
      */
     private DataType buildDataType(CreateTableParser.DataTypeContext ctx) {
-        if (ctx == null) {
-            throw new IllegalArgumentException("Invalid data type context");
-        }
-
         // Delega para o visitor específico via contexto ANTLR (VARCHAR, INT, etc)
         A_AstNode node = visit(ctx);
 

@@ -47,7 +47,6 @@ public class AstSelectBuilder extends SelectBaseVisitor<A_AstNode> {
     public A_AstNode visitSelectStatement(SelectParser.SelectStatementContext ctx) {
 
         D_Projection projection = buildProjection(ctx.projection());
-
         TableName table = buildTableName(ctx.tableName());
 
         Optional<B_Expression> where = ctx.whereClause() == null
@@ -72,10 +71,24 @@ public class AstSelectBuilder extends SelectBaseVisitor<A_AstNode> {
         return new ColumnListProjection(columns);
     }
 
+    /**
+     * Constrói um TableName a partir do contexto do parser.
+     *
+     * @param ctx contexto contendo o identificador da tabela
+     * @return TableName imutável
+     * @throws IllegalArgumentException se o contexto for inválido
+     */
     private TableName buildTableName(SelectParser.TableNameContext ctx) {
         return new TableName(ctx.IDENTIFIER().getText());
     }
 
+    /**
+     * Constrói um ColumnName a partir do contexto do parser.
+     *
+     * @param ctx contexto contendo o identificador da coluna
+     * @return ColumnName imutável
+     * @throws IllegalArgumentException se o contexto for inválido
+     */
     private ColumnName buildColumnName(SelectParser.ColumnContext ctx) {
         return new ColumnName(ctx.IDENTIFIER().getText());
     }
