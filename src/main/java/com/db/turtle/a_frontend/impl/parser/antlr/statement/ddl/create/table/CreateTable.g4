@@ -61,11 +61,6 @@ defaultValue
     | FALSE                     #falseDefault
     ;
 
-
-
-
-
-
 // Keywords
 CREATE          : C R E A T E;
 TABLE           : T A B L E;
