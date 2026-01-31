@@ -1,7 +1,7 @@
 grammar CreateTable;
 
 @header {
-package com.db.turtle.parser.antlr.statement.ddl.create.table;
+package com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.create.table;
 }
 
 statementddl
@@ -110,7 +110,7 @@ WS
     : [ \t\r\n]+ -> skip
     ;
 
-// Fragments para case-insensitive keywords
+// Fragments - case-insensitive keywords
 fragment A : [aA];
 fragment B : [bB];
 fragment C : [cC];
