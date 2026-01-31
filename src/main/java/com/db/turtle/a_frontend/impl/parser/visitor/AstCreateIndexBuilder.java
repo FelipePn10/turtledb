@@ -24,7 +24,11 @@ public class AstCreateIndexBuilder extends CreateIndexBaseVisitor<A_AstNode> {
                 .stream()
                 .map(this::buildColumnName)
                 .toList();
-        return new CreateIndexStatement(indexName, tableName, columns);
+        if (columns.isEmpty()) {
+            throw new RuntimeException("Index must reference at least one column");
+        }
+        boolean isUnique = ctx.UNIQUE() != null;
+        return new CreateIndexStatement(indexName, tableName, columns, isUnique);
     }
 
     @Override

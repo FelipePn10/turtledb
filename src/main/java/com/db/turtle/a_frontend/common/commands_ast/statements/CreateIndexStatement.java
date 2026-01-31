@@ -14,7 +14,8 @@ import java.util.List;
 public record CreateIndexStatement(
         IndexName indexName,
         TableName tableName,
-        List<ColumnName> columns
+        List<ColumnName> columns,
+        boolean unique
 ) implements C_Statement {
     /**
      * Construtor compacto - valida os parâmetros antes de criar o objeto.
@@ -24,7 +25,8 @@ public record CreateIndexStatement(
     public CreateIndexStatement(
             IndexName indexName,
             TableName tableName,
-            List<ColumnName> columns) {
+            List<ColumnName> columns,
+            boolean unique) {
         if (indexName == null || tableName == null) {
             throw new IllegalArgumentException("IndexName or TableName cannot be null");
         }
@@ -34,6 +36,7 @@ public record CreateIndexStatement(
         this.indexName = indexName;
         this.tableName = tableName;
         this.columns = columns;
+        this.unique = unique;
     }
 
     @Override
