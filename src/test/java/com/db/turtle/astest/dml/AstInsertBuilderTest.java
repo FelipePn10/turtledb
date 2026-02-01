@@ -1,4 +1,4 @@
-package com.db.turtle;
+package com.db.turtle.astest.dml;
 
 
 import com.db.turtle.a_frontend.impl.parser.antlr.statement.dml.insert.InsertLexer;
