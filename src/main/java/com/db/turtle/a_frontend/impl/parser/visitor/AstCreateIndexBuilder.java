@@ -31,21 +31,6 @@ public class AstCreateIndexBuilder extends CreateIndexBaseVisitor<A_AstNode> {
         return new CreateIndexStatement(indexName, tableName, columns, isUnique);
     }
 
-    @Override
-    public A_AstNode visitTableName(CreateIndexParser.TableNameContext ctx) {
-        return buildTableName(ctx);
-    }
-
-    @Override
-    public A_AstNode visitIndexName(CreateIndexParser.IndexNameContext ctx) {
-        return buildIndexName(ctx);
-    }
-
-    @Override
-    public A_AstNode visitColumnName(CreateIndexParser.ColumnNameContext ctx) {
-        return buildColumnName(ctx);
-    }
-
     private TableName buildTableName(CreateIndexParser.TableNameContext ctx) {
         return new TableName(ctx.IDENTIFIER().getText());
     }

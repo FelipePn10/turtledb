@@ -2,7 +2,7 @@ ANTLR_JAR ?= antlr-4.13.1-complete.jar
 ANTLR_SRC = src/main/antlr
 ANTLR_OUT = build/generated/antlr
 
-GRAMMARS=$(shell find src/main/java -name "*.g4")
+GRAMMARS=$(shell find src/main/java/com/db/turtle/a_frontend/impl/parser/antlr/statement/ddl/drop/index/ -name "*.g4")
 
 .PHONY: all generate build test clean
 
@@ -10,7 +10,7 @@ all: generate build test
 
 generate: $(GRAMMARS)
 	@echo "Generating ANTLR parsers..."
-	java -jar $(ANTLR_JAR) -visitor -no-listener $(GRAMMARS)
+	java -jar antlr-4.13.1-complete.jar -visitor -no-listener $(GRAMMARS)
 
 build:
 	./gradlew build
