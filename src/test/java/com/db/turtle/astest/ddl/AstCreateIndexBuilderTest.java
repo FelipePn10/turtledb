@@ -377,7 +377,6 @@ class AstCreateIndexBuilderTest {
         }
     }
 
-    // ==================== Testes de validação e erro ====================
 
     @Nested
     @DisplayName("Validation and Error Tests")
@@ -474,6 +473,7 @@ class AstCreateIndexBuilderTest {
                             .extracting(IndexName::getName)
                             .isEqualTo("my_index"),
 
+
                     () -> assertThat(statement.tableName())
                             .isInstanceOf(TableName.class)
                             .extracting(TableName::getName)
@@ -485,6 +485,7 @@ class AstCreateIndexBuilderTest {
                             .isInstanceOf(ColumnName.class)
                             .extracting(ColumnName::getName)
                             .isEqualTo("my_column")
+
             );
         }
     }
