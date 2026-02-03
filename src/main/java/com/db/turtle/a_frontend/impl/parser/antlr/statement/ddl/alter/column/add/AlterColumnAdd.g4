@@ -1,43 +1,24 @@
-grammar CreateTable;
+grammar AlterColumnAdd;
 
 @header {
-package com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.create.table;
+package com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.alter.column.add;
 }
 
-statementddl
-    : createTable EOF
+statement
+    : alterColumnAdd EOF
     ;
 
-createTable
-    : CREATE TABLE tableName LPAREN columnDef (COMMA columnDef)* RPAREN
-    ;
-
-columnDef
-    : columnName dataType columnConstraints?
-    ;
-
-columnName
-    : IDENTIFIER
+// ALTER TABLE tableName ADD columnName dataType
+alterColumnAdd
+    :   ALTER TABLE tableName ADD columnName dataType columnConstraints*
     ;
 
 tableName
     : IDENTIFIER
     ;
 
-dataType
-    : VARCHAR LPAREN NUMBER RPAREN                  #varcharType
-    | CHAR LPAREN NUMBER RPAREN                     #charType
-    | INT                                           #intType
-    | INTEGER                                       #integerType
-    | BIGINT                                        #bigintType
-    | DECIMAL LPAREN NUMBER (COMMA NUMBER)? RPAREN  #decimalType
-    | FLOAT                                         #floatType
-    | DOUBLE                                        #doubleType
-    | DATE                                          #dateType
-    | DATETIME                                      #datetimeType
-    | TIMESTAMP                                     #timestampType
-    | TEXT                                          #textType
-    | BOOLEAN                                       #booleanType
+columnName
+    : IDENTIFIER
     ;
 
 columnConstraints
@@ -54,16 +35,34 @@ columnConstraint
     ;
 
 defaultValue
-    : NUMBER                    #numberDefault
-    | STRING                    #stringDefault
-    | NULL                      #nullDefault
-    | TRUE                      #trueDefault
-    | FALSE                     #falseDefault
+    : INT_NUMBER            #intDefault
+    | DECIMAL_NUMBER        #decimalDefault
+    | STRING                #stringDefault
+    | NULL                  #nullDefault
+    | TRUE                  #trueDefault
+    | FALSE                 #falseDefault
+    ;
+
+dataType
+    : VARCHAR LPAREN INT_NUMBER RPAREN                         #varcharType
+    | CHAR LPAREN INT_NUMBER RPAREN                            #charType
+    | INT                                                      #intType
+    | INTEGER                                                  #integerType
+    | BIGINT                                                   #bigintType
+    | DECIMAL LPAREN INT_NUMBER (COMMA INT_NUMBER)? RPAREN     #decimalType
+    | FLOAT                                                    #floatType
+    | DOUBLE                                                   #doubleType
+    | DATE                                                     #dateType
+    | DATETIME                                                 #datetimeType
+    | TIMESTAMP                                                #timestampType
+    | TEXT                                                     #textType
+    | BOOLEAN                                                  #booleanType
     ;
 
 // Keywords
-CREATE          : C R E A T E;
+ALTER           : A L T E R;
 TABLE           : T A B L E;
+ADD             : A D D;
 VARCHAR         : V A R C H A R;
 CHAR            : C H A R;
 INT             : I N T;
@@ -91,24 +90,30 @@ LPAREN  : '(';
 RPAREN  : ')';
 COMMA   : ',';
 
-IDENTIFIER
-    : [a-zA-Z_][a-zA-Z_0-9]*
-    ;
-
 NUMBER
     : [0-9]+ ('.' [0-9]+)?
+    ;
+
+INT_NUMBER
+    : [0-9]+
+    ;
+
+DECIMAL_NUMBER
+    : [0-9]+ '.' [0-9]+
     ;
 
 STRING
     : '\'' ( ~('\'' | '\\') | '\\' . )* '\''
     ;
 
-// Whitespace
+IDENTIFIER
+    : [a-zA-Z_][a-zA-Z_0-9]*
+    ;
+
 WS
     : [ \t\r\n]+ -> skip
     ;
 
-// Fragments - case-insensitive keywords
 fragment A : [aA];
 fragment B : [bB];
 fragment C : [cC];
@@ -135,15 +140,3 @@ fragment W : [wW];
 fragment X : [xX];
 fragment Y : [yY];
 fragment Z : [zZ];
-
-/**
-                        -- EXEMPLO --
-
-CREATE TABLE usuarios (
-    id      INT          PRIMARY KEY AUTO_INCREMENT,
-    name    VARCHAR(100) NOT NULL,
-    email   VARCHAR(255) UNIQUE,
-    age     INT          DEFAULT 18,
-    active  BOOLEAN      DEFAULT TRUE
-)
-*/
