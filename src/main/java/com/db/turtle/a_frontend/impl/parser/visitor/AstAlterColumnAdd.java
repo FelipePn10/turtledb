@@ -1,12 +1,11 @@
 package com.db.turtle.a_frontend.impl.parser.visitor;
 
+import com.db.turtle.a_frontend.common.commands_ast.statements.AlterColumnAddStatement;
 import com.db.turtle.a_frontend.common.denominator.A_AstNode;
 import com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.alter.column.add.AlterColumnAddBaseVisitor;
 import com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.alter.column.add.AlterColumnAddParser;
-import com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.create.table.CreateTableParser;
 import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.BooleanLiteral;
 import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.NullLiteral;
-import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.NumberLiteral;
 import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.StringLiteral;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.ColumnName;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.TableName;
@@ -27,7 +26,7 @@ public class AstAlterColumnAdd  extends AlterColumnAddBaseVisitor<A_AstNode> {
         DataType type = buildDataType(ctx.dataType());
         List<ColumnConstraint> constraint = buildColumnConstraints(ctx.columnConstraints());
 
-        return new AlterColumnAddStatement(table, column, type);
+        return new AlterColumnAddStatement(table, column, type, constraint);
     }
 
     /**
@@ -179,7 +178,6 @@ public class AstAlterColumnAdd  extends AlterColumnAddBaseVisitor<A_AstNode> {
             AlterColumnAddParser.StringDefaultContext ctx) {
 
         String quoted = ctx.STRING().getText();
-        // Remove aspas externas e trata escape ('' -> ')
         String unquoted = quoted.substring(1, quoted.length() - 1)
                 .replace("''", "'");
         return new StringLiteral(unquoted);
