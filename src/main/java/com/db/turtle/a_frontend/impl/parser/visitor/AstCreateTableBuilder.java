@@ -33,17 +33,6 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<A_AstNode> {
 
         return new CreateTableStatement(table, columns);
     }
-
-    @Override
-    public A_AstNode visitTableName(CreateTableParser.TableNameContext ctx) {
-        return buildTableName(ctx);
-    }
-
-    @Override
-    public A_AstNode visitColumnDef(CreateTableParser.ColumnDefContext ctx) {
-        return buildColumnDef(ctx);
-    }
-
     /**
      * Constrói um TableName a partir do contexto do parser.
      *
@@ -88,7 +77,6 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<A_AstNode> {
      *
      * @param ctx contexto do tipo de dado
      * @return DataType específico (IntType, VarcharType, etc)
-     * @throws IllegalArgumentException se o contexto for inválido
      * @throws IllegalStateException se o visitor retornar tipo inesperado
      */
     private DataType buildDataType(CreateTableParser.DataTypeContext ctx) {

@@ -25,3 +25,6 @@ clean:
 	find src/main/java -name "*.tokens" 	 -delete
 	find src/main/java -name "*Lexer.java"   -delete
 	find src/main/java -name "*Visitor.java" -delete
+
+
+# java -jar antlr-4.13.1-complete.jar -visitor -no-listener src/main/java/com/db/turtle/a_frontend/impl/parser/antlr/statement/ddl/alter/column/add/AlterColumnAdd.g4
