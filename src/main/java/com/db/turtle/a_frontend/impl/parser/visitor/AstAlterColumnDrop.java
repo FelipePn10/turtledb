@@ -7,6 +7,8 @@ import com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.alter.column.dro
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.ColumnName;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.TableName;
 
+import java.util.List;
+
 /**
  * Visitor que constrói a AST (Abstract Syntax Tree) a partir do parse tree
  * gerado pelo ANTLR para comandos ALTER TABLE tableName DROP COLUMN columnName
@@ -15,7 +17,10 @@ public class AstAlterColumnDrop extends AlterColumnDropBaseVisitor<A_AstNode> {
     @Override
     public A_AstNode visitAlterColumnDrop(AlterColumnDropParser.AlterColumnDropContext ctx) {
         TableName table = buildTableName(ctx.tableName());
-        ColumnName column = buildColumn(ctx.columnName());
+        List<ColumnName> column = ctx.dropColumnClause()
+                .stream()
+                .map(this::buildColumnClause)
+                .toList();
 
         return new AlterColumnDropStatement(table, column);
     }
@@ -38,7 +43,7 @@ public class AstAlterColumnDrop extends AlterColumnDropBaseVisitor<A_AstNode> {
      * @return ColumnName imutável
      * @throws IllegalArgumentException se o contexto for inválido
      */
-    private ColumnName buildColumn(AlterColumnDropParser.ColumnNameContext ctx) {
-        return new ColumnName(ctx.IDENTIFIER().getText());
+    private ColumnName buildColumnClause(AlterColumnDropParser.DropColumnClauseContext ctx) {
+        return new ColumnName(ctx.columnName().IDENTIFIER().getText());
     }
 }
