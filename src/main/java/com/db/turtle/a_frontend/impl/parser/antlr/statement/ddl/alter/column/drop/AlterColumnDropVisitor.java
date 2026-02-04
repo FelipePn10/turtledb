@@ -25,6 +25,12 @@ public interface AlterColumnDropVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAlterColumnDrop(AlterColumnDropParser.AlterColumnDropContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link AlterColumnDropParser#dropColumnClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDropColumnClause(AlterColumnDropParser.DropColumnClauseContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link AlterColumnDropParser#tableName}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

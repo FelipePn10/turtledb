@@ -5,13 +5,17 @@ package com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.alter.column.dr
 }
 
 statement
-    : alterColumnDrop
+    : alterColumnDrop EOF
     ;
 
-//ALTER TABLE tableName DROP COLUMN columnName;
 alterColumnDrop
-    : ALTER TABLE tableName DROP COLUMN columnName
+    : ALTER TABLE tableName dropColumnClause (',' dropColumnClause)* SEMICOLON?
     ;
+
+dropColumnClause
+    : DROP COLUMN columnName
+    ;
+
 
 tableName
     : IDENTIFIER
@@ -25,6 +29,7 @@ ALTER           : A L T E R;
 TABLE           : T A B L E;
 DROP            : D R O P;
 COLUMN          : C O L U M N;
+SEMICOLON       : S E M I C O L O N;
 
 IDENTIFIER
     : [a-zA-Z_][a-zA-Z_0-9]*
@@ -46,3 +51,5 @@ fragment P : [pP];
 fragment R : [rR];
 fragment T : [tT];
 fragment U : [uU];
+fragment I : [iI];
+fragment S : [sS];
