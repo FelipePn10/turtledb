@@ -7,7 +7,6 @@ import com.db.turtle.a_frontend.impl.parser.ast.ntm.constraint.ColumnConstraint;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.DataType;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Representação de um comando ALTER ADD COLUMN em Nó do AST.
