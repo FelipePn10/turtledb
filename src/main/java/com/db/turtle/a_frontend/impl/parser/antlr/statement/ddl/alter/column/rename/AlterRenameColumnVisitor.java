@@ -1,6 +1,6 @@
-// Generated from src/main/java/com/db/turtle/a_frontend/impl/parser/antlr/statement/ddl/alter/column/rename/column/AlterRenameColumn.g4 by ANTLR 4.13.1
+// Generated from src/main/java/com/db/turtle/a_frontend/impl/parser/antlr/statement/ddl/alter/column/rename/AlterRenameColumn.g4 by ANTLR 4.13.1
 
-package com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.alter.column.rename.column;
+package com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.alter.column.rename;
 
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
