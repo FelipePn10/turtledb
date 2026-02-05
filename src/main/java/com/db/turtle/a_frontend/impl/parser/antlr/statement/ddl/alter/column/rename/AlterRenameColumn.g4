@@ -1,7 +1,7 @@
 grammar AlterRenameColumn;
 
 @header {
-package com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.alter.column.rename.column;
+package com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.alter.column.rename;
 }
 
 statement
