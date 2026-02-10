@@ -2,6 +2,8 @@ package com.db.turtle.a_frontend.impl.parser.visitor;
 
 import com.db.turtle.a_frontend.common.commands_ast.statements.AlterRenameColumnStatement;
 import com.db.turtle.a_frontend.common.denominator.A_AstNode;
+import com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.alter.column.rename.AlterRenameColumnBaseVisitor;
+import com.db.turtle.a_frontend.impl.parser.antlr.statement.ddl.alter.column.rename.AlterRenameColumnParser;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.ColumnName;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.ColumnRename;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.TableName;

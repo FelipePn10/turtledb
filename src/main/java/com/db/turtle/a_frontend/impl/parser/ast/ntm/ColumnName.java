@@ -35,4 +35,9 @@ public class ColumnName implements A_AstNode {
         return name.hashCode();
     }
 
+    public boolean equalsIgnoreCase(ColumnName other) {
+        if (other == null) return false;
+        return this.name.equalsIgnoreCase(other.name);
+    }
+
 }

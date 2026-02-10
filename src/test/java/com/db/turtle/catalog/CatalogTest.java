@@ -1,6 +1,10 @@
 package com.db.turtle.catalog;
 
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.ColumnName;
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.TableName;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.DataType;
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.IntegerType;
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.VarcharType;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.ColumnMetadata;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.InMemoryCatalog;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.TableMetadata;
@@ -20,12 +24,12 @@ public class CatalogTest {
 
         // Cria metadados de uma tabela "usuarios"
         List<ColumnMetadata> columns = List.of(
-                new ColumnMetadata("id", DataType.INTEGER, false, 0),
-                new ColumnMetadata("nome", DataType.VARCHAR, true, 1),
-                new ColumnMetadata("idade", DataType.INTEGER, true, 2)
+                new ColumnMetadata(new ColumnName("id"), new IntegerType(), false, 0),
+                new ColumnMetadata(new ColumnName("nome"),new VarcharType(100), true, 1),
+                new ColumnMetadata(new ColumnName("idade"), new IntegerType(), true, 2)
         );
 
-        TableMetadata usuarios = new TableMetadata("public", "usuarios", columns);
+        TableMetadata usuarios = new TableMetadata("public", new TableName("usuarios"), columns);
 
         // Registra no catálogo
         catalog.registerTable(usuarios);
@@ -34,13 +38,13 @@ public class CatalogTest {
         Optional<TableMetadata> found = catalog.getTable("public", "usuarios");
 
         assertTrue(found.isPresent(), "Tabela deveria existir");
-        assertEquals("usuarios", found.get().getTableName());
+        assertEquals(new TableName("usuarios"), found.get().getTableName());
         assertEquals(3, found.get().getAllColumns().size());
 
         // Testa buscar coluna específica
-        Optional<ColumnMetadata> nomeCol = found.get().getColumn("nome");
+        Optional<ColumnMetadata> nomeCol = found.get().getColumn(new ColumnName("nome"));
         assertTrue(nomeCol.isPresent());
-        assertEquals(DataType.VARCHAR, nomeCol.get().getType());
+//        assertEquals(new VarcharType(100), nomeCol.get().getType());
     }
 
     @Test

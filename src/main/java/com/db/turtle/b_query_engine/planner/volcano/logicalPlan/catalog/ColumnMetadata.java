@@ -17,6 +17,19 @@ public class ColumnMetadata {
     }
 
     // getters...
+    public ColumnName getName() {
+        return name;
+    }
+
+    public boolean equalsIgnoreCase(ColumnName other) {
+        if (other == null) return false;
+        return this.name.getName().equalsIgnoreCase(other.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 
     @Override
     public String toString() {
