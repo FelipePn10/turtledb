@@ -21,8 +21,11 @@ public class TableMetadata {
      * Busca uma coluna pelo nome (case-insensitive)
      */
     public Optional<ColumnMetadata> getColumn(ColumnName columnName) {
+        if (columnName == null) return Optional.empty();
+
         return columns.stream()
-                .filter(col -> col.name().equalsIgnoreCase(columnName))
+                .filter(col -> col.getName().getName()
+                        .equalsIgnoreCase(columnName.getName()))
                 .findFirst();
     }
 
@@ -36,6 +39,15 @@ public class TableMetadata {
     public String getFullName() {
         return schemaName + "." + tableName;
     }
+
+    public String getSchemaName() {
+        return schemaName;
+    }
+
+    public TableName getTableName() {
+        return tableName;
+    }
+
 
     // getters...
 }

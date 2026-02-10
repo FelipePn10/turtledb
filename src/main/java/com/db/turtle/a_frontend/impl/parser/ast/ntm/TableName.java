@@ -16,6 +16,19 @@ public final class TableName implements A_AstNode {
             }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TableName that)) return false;
+        return name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+
     public String getName() {
         return name;
     }
