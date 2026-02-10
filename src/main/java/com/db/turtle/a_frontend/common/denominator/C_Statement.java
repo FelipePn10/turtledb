@@ -1,7 +1,8 @@
 package com.db.turtle.a_frontend.common.denominator;
 
 /**
- * Representa comandos de alto nível, que produzem efeito no banco de dados
+ * Representa comandos de alto nível
+ * que produzem efeito no banco de dados
  *
  * @author Felipe Panosso
  * */

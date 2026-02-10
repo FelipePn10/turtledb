@@ -7,11 +7,9 @@ import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.BooleanLitera
 import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.NullLiteral;
 import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.NumberLiteral;
 import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.StringLiteral;
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.*;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.constraint.*;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.*;
-import com.db.turtle.a_frontend.impl.parser.ast.ntm.ColumnDef;
-import com.db.turtle.a_frontend.impl.parser.ast.ntm.ColumnName;
-import com.db.turtle.a_frontend.impl.parser.ast.ntm.TableName;
 import com.db.turtle.a_frontend.common.commands_ast.statements.CreateTableStatement;
 
 import java.util.List;
@@ -24,7 +22,7 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<A_AstNode> {
 
     @Override
     public A_AstNode visitCreateTable(CreateTableParser.CreateTableContext ctx) {
-        TableName table = buildTableName(ctx.tableName());
+        TableName table = buildTableName(ctx.tableName()).name();
 
         List<ColumnDef> columns = ctx.columnDef()
                 .stream()
@@ -40,8 +38,8 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<A_AstNode> {
      * @return TableName imutável
      * @throws IllegalArgumentException se o contexto for inválido
      */
-    private TableName buildTableName(CreateTableParser.TableNameContext ctx) {
-        return new TableName(ctx.IDENTIFIER().getText());
+    private TableRef buildTableName(CreateTableParser.TableNameContext ctx) {
+        return TableRef.of(new TableName(ctx.IDENTIFIER().getText()));
     }
 
     /**
@@ -52,11 +50,11 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<A_AstNode> {
      * @throws IllegalArgumentException se o contexto for inválido
      */
     private ColumnDef buildColumnDef(CreateTableParser.ColumnDefContext ctx) {
-        ColumnName columnName = buildColumnName(ctx.columnName());
+        ColumnRef columnRef = buildColumnName(ctx.columnName());
         DataType dataType = buildDataType(ctx.dataType());
         List<ColumnConstraint> constraints = buildConstraints(ctx.columnConstraints());
 
-        return new ColumnDef(columnName, dataType, constraints);
+        return new ColumnDef(columnRef, dataType, constraints);
     }
 
     /**
@@ -66,8 +64,8 @@ public class AstCreateTableBuilder extends CreateTableBaseVisitor<A_AstNode> {
      * @return ColumnName imutável
      * @throws IllegalArgumentException se o contexto for inválido
      */
-    private ColumnName buildColumnName(CreateTableParser.ColumnNameContext ctx) {
-        return new ColumnName(ctx.IDENTIFIER().getText());
+    private ColumnRef buildColumnName(CreateTableParser.ColumnNameContext ctx) {
+        return ColumnRef.of(new ColumnName(ctx.IDENTIFIER().getText()));
     }
 
     /**

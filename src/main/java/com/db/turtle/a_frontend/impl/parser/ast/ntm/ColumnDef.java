@@ -10,23 +10,25 @@ import java.util.List;
  * Representação de uma coluna com o seu tipo e a sua constraint.
  * */
 public class ColumnDef implements A_AstNode {
-    private final ColumnName columnName;
+    private final ColumnRef columnRef;
     private final DataType dataType;
     private final List<ColumnConstraint> constraints;
 
     public ColumnDef(
-            ColumnName columnName,
+            ColumnRef columnRef,
             DataType dataType,
             List<ColumnConstraint> constraints
     ) {
-        this.columnName = columnName;
+        this.columnRef = columnRef;
         this.dataType = dataType;
         this.constraints = constraints;
     }
 
     public String getColumnName() {
-        return columnName.toString();
+        return columnRef.name().toString();
     }
+
+    public String getQualifierName() {return columnRef.qualifier().toString();}
 
     public DataType getDataType() {
         return dataType;
@@ -42,7 +44,7 @@ public class ColumnDef implements A_AstNode {
 
     @Override
     public String toString() {
-        return columnName + "" + dataType +
+        return columnRef.name() + "" + dataType +
                 (constraints.isEmpty() ? "" : ", " + constraints);
     }
 }
