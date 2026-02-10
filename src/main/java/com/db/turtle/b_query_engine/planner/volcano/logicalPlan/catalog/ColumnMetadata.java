@@ -16,7 +16,6 @@ public class ColumnMetadata {
         this.position = position;
     }
 
-    // getters...
     public ColumnName getName() {
         return name;
     }
@@ -24,6 +23,14 @@ public class ColumnMetadata {
     public boolean equalsIgnoreCase(ColumnName other) {
         if (other == null) return false;
         return this.name.getName().equalsIgnoreCase(other.getName());
+    }
+
+    public DataType getType() {
+        return type;
+    }
+
+    public int getPosition() {
+        return position;
     }
 
     @Override
@@ -35,4 +42,5 @@ public class ColumnMetadata {
     public String toString() {
         return name + " " + type + (nullable ? "" : " NOT NULL");
     }
+
 }

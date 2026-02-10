@@ -44,7 +44,7 @@ public class CatalogTest {
         // Testa buscar coluna específica
         Optional<ColumnMetadata> nomeCol = found.get().getColumn(new ColumnName("nome"));
         assertTrue(nomeCol.isPresent());
-//        assertEquals(new VarcharType(100), nomeCol.get().getType());
+        //assertEquals(new VarcharType(100), nomeCol.get().getType());
     }
 
     @Test

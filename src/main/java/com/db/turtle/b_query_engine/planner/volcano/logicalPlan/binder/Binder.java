@@ -1,66 +1,114 @@
 package com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder;
 
+import com.db.turtle.a_frontend.common.denominator.B_Expression;
 import com.db.turtle.a_frontend.common.denominator.C_Statement;
-import com.db.turtle.a_frontend.impl.parser.ast.ntm.SelectStmt;
-import com.db.turtle.a_frontend.impl.parser.ast.ntm.TableRef;
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.*;
+import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundExpression;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundSelectStmt;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundStatement;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.exception.BindExceptionApplication;
+import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.ntm.BoundColumnRef;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.ntm.BoundTableRef;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.Catalog;
+import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.ColumnMetadata;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.TableMetadata;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class Binder {
     private final Catalog catalog;
+
     public Binder(Catalog catalog) {
         this.catalog = catalog;
     }
 
-    /*
-    * Valida o statement e retorna versão "bound"
-    * */
+    /**
+     * Valida o statement e retorna versão "bound"
+     */
     public BoundStatement bind(C_Statement statement) {
         return switch (statement) {
-            case SelectStmt selectStmt -> bindSelect((SelectStmt) statement);
-            // futuros casos
-            default -> throw new BindExceptionApplication("Statement not yet supported." + statement.getClass());
+            case SelectStmt selectStmt -> bindSelect(selectStmt);
+            default -> throw new BindExceptionApplication(
+                    "Statement not yet supported: " + statement.getClass()
+            );
         };
     }
+    private List<BoundExpression> bindProjection(
+            List<B_Expression> projection,
+            BoundTableRef table
+    ) {
+        List<BoundExpression> boundProjection = new ArrayList<>();
+
+        for (B_Expression expr : projection) {
+            BoundExpression bound = switch (expr) {
+                case ColumnRef colRef -> bindColumnRef(colRef, table);
+                default -> throw new BindExceptionApplication(
+                        "Projeção não suportada: " + expr.getClass()
+                );
+            };
+            boundProjection.add(bound);
+        }
+
+        return boundProjection;
+    }
+
+    private BoundColumnRef bindColumnRef(ColumnRef colRef, BoundTableRef table) {
+        String columnName = colRef.name().getName();
+
+        Optional<ColumnMetadata> colMeta = table.metadata()
+                .getColumn(new ColumnName(columnName));
+
+        if (colMeta.isEmpty()) {
+            throw new BindExceptionApplication(
+                    "Coluna não encontrada: " + columnName +
+                            " na tabela " + table.getTableName()
+            );
+        }
+
+        return BoundColumnRef.from(table.getTableName(), colMeta.get());
+    }
+
 
     private BoundStatement bindSelect(SelectStmt select) {
-        // Valida a tabela do from
-        TableRef tableRef = (TableRef) select.from();
+        // Valida a tabela do FROM
+        BoundTableRef boundTable = switch (select.from()) {
+            case TableRef tableRef -> bindTableRef(tableRef);
+            case JoinStmt joinStmt -> throw new BindExceptionApplication(
+                    "JOIN ainda não implementado"
+            );
 
-        // SELECT * FROM usuarios → schema = "public" (padrão)
-        // SELECT * FROM admin.usuarios → schema = "admin"
+            default -> throw new BindExceptionApplication(
+                    "FROM not support: " + select.from().getClass()
+            );
+        };
+
+        List<BoundExpression> boundProjection =
+                bindProjection(select.projection(), boundTable);
+
+        return new BoundSelectStmt(
+                boundProjection,
+                boundTable,
+                Optional.empty()     // WHERE vazio por enquanto
+        );
+    }
+
+    private BoundTableRef bindTableRef(TableRef tableRef) {
         String schema = tableRef.schema().orElse("public");
         String tableName = tableRef.name().getName();
 
-        // Busca no catálogo
         Optional<TableMetadata> tableMeta = catalog.getTable(schema, tableName);
 
         if (tableMeta.isEmpty()) {
             throw new BindExceptionApplication(
-                    "Table " + tableName + " not found."
+                    "Table not found: " + schema + "." + tableName
             );
         }
 
-        // Por enquanto, só retorna a tabela validada
-        BoundTableRef boundTable = new BoundTableRef(
+        return new BoundTableRef(
                 tableMeta.get(),
-                tableRef.alias().orElse(tableName) // alias ou nome da tabela
-        );
-
-        // validar colunas da projeção
-        // validar WHERE clause
-
-        return new BoundSelectStmt(
-                List.of(), // por quanto projeção vazia
-                boundTable,
-                Optional.empty() // WHERE também vazio
+                tableRef.alias().orElse(tableName)
         );
     }
 }
