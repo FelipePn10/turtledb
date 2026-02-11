@@ -2,6 +2,7 @@ package com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder;
 
 import com.db.turtle.a_frontend.common.denominator.B_Expression;
 import com.db.turtle.a_frontend.common.denominator.C_Statement;
+import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.Literal;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.*;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundExpression;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundSelectStmt;
@@ -16,6 +17,7 @@ import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.TableMet
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Binder {
     private final Catalog catalog;
@@ -39,6 +41,13 @@ public class Binder {
             List<B_Expression> projection,
             BoundTableRef table
     ) {
+        if (projection.size() == 1 && projection.getFirst() instanceof StarProjection) {
+            return table.metadata().getAllColumns()
+                    .stream()
+                    .map(col -> BoundColumnRef.from(table.getTableName(), col))
+                    .collect(Collectors.toList());
+        }
+
         List<BoundExpression> boundProjection = new ArrayList<>();
 
         for (B_Expression expr : projection) {
@@ -68,6 +77,36 @@ public class Binder {
         }
 
         return BoundColumnRef.from(table.getTableName(), colMeta.get());
+    }
+
+    private Optional<BoundExpression> bindWhere(
+            Optional<B_Expression> where,
+            BoundTableRef table
+    ) {
+        if (where.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(bindExpression(where.getFirst(), table));
+    }
+
+    private BoundExpression bindExpression(B_Expression expr, BoundTableRef table) {
+        return switch (expr) {
+            case ColumnRef col -> bindColumnRef(col, table);
+            case BinaryOp op -> bindBinaryOp(op, table);
+            case Literal lit -> bindLiteral(lit, table);
+            default -> throw new BindExceptionApplication(
+                    "Expression not yet supported: " + expr.getClass()
+            );
+        };
+    }
+
+    private BoundBinaryOp bindBinaryOp(BinaryOP op, BoundTableRef) {
+        BoundExpression left = bindExpression(op.left(), table);
+        BoundExpression right = bindExpression(op.right(), table);
+
+        validateTypeCompatibility(left, right, op.operator());
+
+        return new BoundBinaryOp(left, op.operator(), right);
     }
 
 
