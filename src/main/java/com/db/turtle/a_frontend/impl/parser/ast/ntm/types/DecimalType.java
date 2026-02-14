@@ -12,6 +12,11 @@ public class DecimalType extends DataType {
         this.scale = scale;
     }
 
+    @Override
+    public boolean isNumeric() {
+        return true;
+    }
+
     public int getPrecision() {
         return precision;
     }

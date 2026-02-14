@@ -2,8 +2,11 @@ package com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder;
 
 import com.db.turtle.a_frontend.common.denominator.B_Expression;
 import com.db.turtle.a_frontend.common.denominator.C_Statement;
-import com.db.turtle.a_frontend.impl.parser.ast.expression.literal.Literal;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.*;
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.DataType;
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.DecimalType;
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.IntegerType;
+import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundBinaryExpression;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundExpression;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundSelectStmt;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundStatement;
@@ -37,11 +40,38 @@ public class Binder {
             );
         };
     }
+
+    private BoundStatement bindSelect(SelectStmt select) {
+        BoundTableRef boundTable = switch (select.from()) {
+            case TableRef tableRef -> bindTableRef(tableRef);
+            case JoinStmt joinStmt -> throw new BindExceptionApplication(
+                    "JOIN not implemented"
+            );
+            default -> throw new BindExceptionApplication(
+                    "FROM not yet supported: " + select.from().getClass()
+            );
+        };
+
+        List<BoundExpression> boundProjection =
+                bindProjection(select.projection(), boundTable);
+
+        // sem WHERE por enquanto
+        return new BoundSelectStmt(
+                boundProjection,
+                boundTable,
+                Optional.empty()
+        );
+    }
+
+    /**
+     * Valida a projeção (colunas do SELECT)
+     */
     private List<BoundExpression> bindProjection(
             List<B_Expression> projection,
             BoundTableRef table
     ) {
-        if (projection.size() == 1 && projection.getFirst() instanceof StarProjection) {
+        // SELECT *
+        if (projection.size() == 1 && projection.get(0) instanceof StarProjection) {
             return table.metadata().getAllColumns()
                     .stream()
                     .map(col -> BoundColumnRef.from(table.getTableName(), col))
@@ -54,7 +84,7 @@ public class Binder {
             BoundExpression bound = switch (expr) {
                 case ColumnRef colRef -> bindColumnRef(colRef, table);
                 default -> throw new BindExceptionApplication(
-                        "Projeção não suportada: " + expr.getClass()
+                        "Projection not yet supported: " + expr.getClass()
                 );
             };
             boundProjection.add(bound);
@@ -63,76 +93,29 @@ public class Binder {
         return boundProjection;
     }
 
+    /**
+     * Valida uma referência de coluna
+     */
     private BoundColumnRef bindColumnRef(ColumnRef colRef, BoundTableRef table) {
         String columnName = colRef.name().getName();
 
+        // Busca a coluna nos metadados
         Optional<ColumnMetadata> colMeta = table.metadata()
                 .getColumn(new ColumnName(columnName));
 
         if (colMeta.isEmpty()) {
             throw new BindExceptionApplication(
-                    "Coluna não encontrada: " + columnName +
-                            " na tabela " + table.getTableName()
+                    "Column not found: " + columnName +
+                            " in tableb " + table.getTableName()
             );
         }
 
         return BoundColumnRef.from(table.getTableName(), colMeta.get());
     }
 
-    private Optional<BoundExpression> bindWhere(
-            Optional<B_Expression> where,
-            BoundTableRef table
-    ) {
-        if (where.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(bindExpression(where.getFirst(), table));
-    }
-
-    private BoundExpression bindExpression(B_Expression expr, BoundTableRef table) {
-        return switch (expr) {
-            case ColumnRef col -> bindColumnRef(col, table);
-            case BinaryOp op -> bindBinaryOp(op, table);
-            case Literal lit -> bindLiteral(lit, table);
-            default -> throw new BindExceptionApplication(
-                    "Expression not yet supported: " + expr.getClass()
-            );
-        };
-    }
-
-    private BoundBinaryOp bindBinaryOp(BinaryOP op, BoundTableRef) {
-        BoundExpression left = bindExpression(op.left(), table);
-        BoundExpression right = bindExpression(op.right(), table);
-
-        validateTypeCompatibility(left, right, op.operator());
-
-        return new BoundBinaryOp(left, op.operator(), right);
-    }
-
-
-    private BoundStatement bindSelect(SelectStmt select) {
-        // Valida a tabela do FROM
-        BoundTableRef boundTable = switch (select.from()) {
-            case TableRef tableRef -> bindTableRef(tableRef);
-            case JoinStmt joinStmt -> throw new BindExceptionApplication(
-                    "JOIN ainda não implementado"
-            );
-
-            default -> throw new BindExceptionApplication(
-                    "FROM not support: " + select.from().getClass()
-            );
-        };
-
-        List<BoundExpression> boundProjection =
-                bindProjection(select.projection(), boundTable);
-
-        return new BoundSelectStmt(
-                boundProjection,
-                boundTable,
-                Optional.empty()     // WHERE vazio por enquanto
-        );
-    }
-
+    /**
+     * Valida uma referência de tabela
+     */
     private BoundTableRef bindTableRef(TableRef tableRef) {
         String schema = tableRef.schema().orElse("public");
         String tableName = tableRef.name().getName();
@@ -150,4 +133,58 @@ public class Binder {
                 tableRef.alias().orElse(tableName)
         );
     }
+
+    /**
+     * Valida operações aritméticas para comandos SELECT
+     **/
+    private BoundBinaryExpression bindArithmeticOperation(BoundExpression left,
+                                                   BoundExpression right,
+                                                   String operator) {
+        if (!left.getType().isNumeric() || !right.getType().isNumeric()) {
+            throw new BindExceptionApplication(
+                    "Operator '" + operator + "' requires numeric operands"
+            );
+        }
+
+
+        DataType resultType = resolveArithmeticResult(
+                left.getType(),
+                right.getType()
+        );
+
+        return new BoundBinaryExpression(
+                left,
+                right,
+                operator,
+                resultType
+        );
+
+    }
+
+    /*
+    * Determina qual será o tipo lógico resultante de uma operação aritmética.
+    * */
+    public DataType resolveArithmeticResult(DataType left, DataType right) {
+        if (left instanceof DecimalType d1 && right instanceof DecimalType d2) {
+            // Estou usando a maior precision entre os dois.=
+            // É uma regra simplificada, mas coerente para um engine inicial.
+            int precision = Math.max(d1.getPrecision(), d2.getPrecision());
+            int scale = Math.max(
+                    d1.getScale() == null ? 0 : d1.getScale(),
+                    d2.getScale() == null ? 0 : d2.getScale()
+            );
+            return new DecimalType(precision, scale);
+        }
+
+        if (left instanceof DecimalType d) {
+            return new DecimalType(d.getPrecision(), d.getScale());
+        }
+
+        if (right instanceof DecimalType d) {
+            return new DecimalType(d.getPrecision(), d.getScale());
+        }
+
+        return new IntegerType();
+    }
+
 }
