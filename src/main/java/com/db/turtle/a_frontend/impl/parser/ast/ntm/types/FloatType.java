@@ -6,6 +6,11 @@ public class FloatType extends DataType{
     }
 
     @Override
+    public boolean isNumeric() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "FLOAT";
     }

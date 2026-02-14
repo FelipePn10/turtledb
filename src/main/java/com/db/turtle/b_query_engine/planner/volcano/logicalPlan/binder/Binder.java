@@ -3,6 +3,10 @@ package com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder;
 import com.db.turtle.a_frontend.common.denominator.B_Expression;
 import com.db.turtle.a_frontend.common.denominator.C_Statement;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.*;
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.DataType;
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.DecimalType;
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.IntegerType;
+import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundBinaryExpression;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundExpression;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundSelectStmt;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundStatement;
@@ -129,4 +133,58 @@ public class Binder {
                 tableRef.alias().orElse(tableName)
         );
     }
+
+    /**
+     * Valida operações aritméticas para comandos SELECT
+     **/
+    private BoundBinaryExpression bindArithmeticOperation(BoundExpression left,
+                                                   BoundExpression right,
+                                                   String operator) {
+        if (!left.getType().isNumeric() || !right.getType().isNumeric()) {
+            throw new BindExceptionApplication(
+                    "Operator '" + operator + "' requires numeric operands"
+            );
+        }
+
+
+        DataType resultType = resolveArithmeticResult(
+                left.getType(),
+                right.getType()
+        );
+
+        return new BoundBinaryExpression(
+                left,
+                right,
+                operator,
+                resultType
+        );
+
+    }
+
+    /*
+    * Determina qual será o tipo lógico resultante de uma operação aritmética.
+    * */
+    public DataType resolveArithmeticResult(DataType left, DataType right) {
+        if (left instanceof DecimalType d1 && right instanceof DecimalType d2) {
+            // Estou usando a maior precision entre os dois.=
+            // É uma regra simplificada, mas coerente para um engine inicial.
+            int precision = Math.max(d1.getPrecision(), d2.getPrecision());
+            int scale = Math.max(
+                    d1.getScale() == null ? 0 : d1.getScale(),
+                    d2.getScale() == null ? 0 : d2.getScale()
+            );
+            return new DecimalType(precision, scale);
+        }
+
+        if (left instanceof DecimalType d) {
+            return new DecimalType(d.getPrecision(), d.getScale());
+        }
+
+        if (right instanceof DecimalType d) {
+            return new DecimalType(d.getPrecision(), d.getScale());
+        }
+
+        return new IntegerType();
+    }
+
 }

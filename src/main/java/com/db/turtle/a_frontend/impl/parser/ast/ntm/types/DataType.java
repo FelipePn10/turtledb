@@ -16,6 +16,10 @@ public abstract class DataType implements A_AstNode {
         return typeName;
     }
 
+    public boolean isNumeric() {
+        return false;
+    }
+
     @Override
     public abstract String toString();
 }
