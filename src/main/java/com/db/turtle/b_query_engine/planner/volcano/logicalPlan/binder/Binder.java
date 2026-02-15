@@ -135,22 +135,33 @@ public class Binder {
     }
 
     /**
-     * Valida operações aritméticas para comandos SELECT
-     **/
-    private BoundBinaryExpression bindArithmeticOperation(BoundExpression left,
-                                                   BoundExpression right,
-                                                   String operator) {
+     * Valida operações aritméticas para comandos SELECT.
+     * Apenas valida tipos e constrói a expressão tipada.
+     */
+    private BoundExpression bindArithmeticOperation(
+            BoundExpression left,
+            BoundExpression right,
+            String operator
+    ) {
+
         if (!left.getType().isNumeric() || !right.getType().isNumeric()) {
             throw new BindExceptionApplication(
                     "Operator '" + operator + "' requires numeric operands"
             );
         }
 
+        if (operator.equals("%")) {
+            if (!(left.getType() instanceof IntegerType) ||
+                    !(right.getType() instanceof IntegerType)) {
 
-        DataType resultType = resolveArithmeticResult(
-                left.getType(),
-                right.getType()
-        );
+                throw new BindExceptionApplication(
+                        "Operator '%' requires integer operands"
+                );
+            }
+        }
+
+        DataType resultType =
+                resolveArithmeticResult(left.getType(), right.getType());
 
         return new BoundBinaryExpression(
                 left,
@@ -158,7 +169,6 @@ public class Binder {
                 operator,
                 resultType
         );
-
     }
 
     /*
@@ -166,8 +176,9 @@ public class Binder {
     * */
     public DataType resolveArithmeticResult(DataType left, DataType right) {
         if (left instanceof DecimalType d1 && right instanceof DecimalType d2) {
-            // Estou usando a maior precision entre os dois.=
-            // É uma regra simplificada, mas coerente para um engine inicial.
+            // Estou usando a maior precision entre os dois,
+            // é uma regra simplificada, mas coerente para um engine inicial.
+            // DECIMAL(10,2) + DECIMAL(8,3) = DECIMAL(10,3)
             int precision = Math.max(d1.getPrecision(), d2.getPrecision());
             int scale = Math.max(
                     d1.getScale() == null ? 0 : d1.getScale(),
