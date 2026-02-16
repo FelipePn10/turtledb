@@ -21,5 +21,5 @@ public record BoundBinaryExpression(
 //        (*)
 //       /   \
 //    price   10
-// Type é para representação lógico do resultado.
+// type é para representação lógico do resultado.
 
