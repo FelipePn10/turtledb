@@ -4,8 +4,6 @@ import com.db.turtle.a_frontend.common.denominator.B_Expression;
 import com.db.turtle.a_frontend.common.denominator.C_Statement;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.*;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.DataType;
-import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.DecimalType;
-import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.IntegerType;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundBinaryExpression;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundExpression;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundSelectStmt;
@@ -13,6 +11,7 @@ import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.Bou
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.exception.BindExceptionApplication;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.ntm.BoundColumnRef;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.ntm.BoundTableRef;
+import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.operator.ArithmeticOperator;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.Catalog;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.ColumnMetadata;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.TableMetadata;
@@ -141,61 +140,22 @@ public class Binder {
     private BoundExpression bindArithmeticOperation(
             BoundExpression left,
             BoundExpression right,
-            String operator
+            String symbol
     ) {
 
-        if (!left.getType().isNumeric() || !right.getType().isNumeric()) {
-            throw new BindExceptionApplication(
-                    "Operator '" + operator + "' requires numeric operands"
-            );
-        }
+        ArithmeticOperator operator =
+                ArithmeticOperator.fromSymbol(symbol);
 
-        if (operator.equals("%")) {
-            if (!(left.getType() instanceof IntegerType) ||
-                    !(right.getType() instanceof IntegerType)) {
-
-                throw new BindExceptionApplication(
-                        "Operator '%' requires integer operands"
-                );
-            }
-        }
+        operator.validate(left.getType(), right.getType());
 
         DataType resultType =
-                resolveArithmeticResult(left.getType(), right.getType());
+                operator.resolveResultType(left.getType(), right.getType());
 
         return new BoundBinaryExpression(
                 left,
                 right,
-                operator,
+                symbol,
                 resultType
         );
     }
-
-    /*
-    * Determina qual será o tipo lógico resultante de uma operação aritmética.
-    * */
-    public DataType resolveArithmeticResult(DataType left, DataType right) {
-        if (left instanceof DecimalType d1 && right instanceof DecimalType d2) {
-            // Estou usando a maior precision entre os dois,
-            // é uma regra simplificada, mas coerente para um engine inicial.
-            // DECIMAL(10,2) + DECIMAL(8,3) = DECIMAL(10,3)
-            int precision = Math.max(d1.getPrecision(), d2.getPrecision());
-            int scale = Math.max(
-                    d1.getScale() == null ? 0 : d1.getScale(),
-                    d2.getScale() == null ? 0 : d2.getScale()
-            );
-            return new DecimalType(precision, scale);
-        }
-
-        if (left instanceof DecimalType d) {
-            return new DecimalType(d.getPrecision(), d.getScale());
-        }
-
-        if (right instanceof DecimalType d) {
-            return new DecimalType(d.getPrecision(), d.getScale());
-        }
-
-        return new IntegerType();
-    }
-
 }
