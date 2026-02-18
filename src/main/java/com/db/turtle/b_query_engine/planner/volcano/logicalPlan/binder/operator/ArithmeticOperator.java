@@ -1,5 +1,6 @@
 package com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.operator;
 
+import com.db.turtle.a_frontend.common.denominator.E_BinaryOperator;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.DataType;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.DecimalType;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.IntegerType;
@@ -10,7 +11,7 @@ import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.exception
 * Representa uma regra semântica de linguagem. É a definição comportamental do operador.
 * Encapsula a regra de validação, a regra de inferência de tipo e a identidade do operador.
 * */
-public enum ArithmeticOperator {
+public enum ArithmeticOperator implements E_BinaryOperator {
 
     ADD("+") {
         @Override

@@ -1,7 +1,9 @@
 package com.db.turtle.a_frontend.impl.parser.ast.expression;
 
 
-public enum ComparisonOperator {
+import com.db.turtle.a_frontend.common.denominator.E_BinaryOperator;
+
+public enum ComparisonOperator implements E_BinaryOperator {
     EQ("="),
     GT(">"),
     GE(">="),
