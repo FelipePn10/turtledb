@@ -26,4 +26,24 @@ public record BoundColumnRef(
                 col.getPosition()
         );
     }
+
+    @Override
+    public DataType getType() {
+        return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return 0;
+    }
+
+    @Override
+    public String toString() {
+        return "";
+    }
 }

@@ -2,6 +2,8 @@ package com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder;
 
 import com.db.turtle.a_frontend.common.denominator.B_Expression;
 import com.db.turtle.a_frontend.common.denominator.C_Statement;
+import com.db.turtle.a_frontend.common.denominator.E_BinaryOperator;
+import com.db.turtle.a_frontend.impl.parser.ast.expression.BinaryExpression;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.*;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.DataType;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundBinaryExpression;
@@ -21,6 +23,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/*
+* Responsável por produzir uma representação semântica tipada da query para o planejamento lógico
+* */
 public class Binder {
     private final Catalog catalog;
 
@@ -63,14 +68,14 @@ public class Binder {
     }
 
     /**
-     * Valida a projeção (colunas do SELECT)
+     * Valida a projeção
      */
     private List<BoundExpression> bindProjection(
             List<B_Expression> projection,
             BoundTableRef table
     ) {
         // SELECT *
-        if (projection.size() == 1 && projection.get(0) instanceof StarProjection) {
+        if (projection.size() == 1 && projection.getFirst() instanceof StarProjection) {
             return table.metadata().getAllColumns()
                     .stream()
                     .map(col -> BoundColumnRef.from(table.getTableName(), col))
@@ -80,16 +85,88 @@ public class Binder {
         List<BoundExpression> boundProjection = new ArrayList<>();
 
         for (B_Expression expr : projection) {
-            BoundExpression bound = switch (expr) {
-                case ColumnRef colRef -> bindColumnRef(colRef, table);
-                default -> throw new BindExceptionApplication(
-                        "Projection not yet supported: " + expr.getClass()
-                );
-            };
+            BoundExpression bound =
+                    bindExpression(expr, table);
+
             boundProjection.add(bound);
         }
 
         return boundProjection;
+    }
+
+    /*
+    * Método central de binding de expressões.
+    * bindExpression realiza um wal recursivo na árvore, sendo um tree visitor implícito via pattern matching suportando profundidade arbitrária de expressão, veja:
+    * price * (quantity + tax) / discount
+    */
+    private BoundExpression bindExpression(
+            B_Expression expr,
+            BoundTableRef table
+    ) {
+        return switch (expr) {
+
+            case ColumnRef colRef ->
+                    bindColumnRef(colRef, table);
+
+            case BinaryExpression binExpr -> {
+                BoundExpression left =
+                        bindExpression(binExpr.left, table);
+
+                BoundExpression right =
+                        bindExpression(binExpr.right, table);
+
+                yield bindBinaryOperation(
+                        left,
+                        right,
+                        binExpr.operator
+                );
+            }
+
+            default -> throw new BindExceptionApplication(
+                    "Expression not supported: " + expr.getClass()
+            );
+        };
+    }
+
+    /**
+     * Valida operações aritméticas para comandos SELECT.
+     */
+    private BoundExpression bindBinaryOperation(
+            BoundExpression left,
+            BoundExpression right,
+            E_BinaryOperator symbol
+    ) {
+
+        if (symbol instanceof ArithmeticOperator arithmetic) {
+
+            arithmetic.validate(left.getType(), right.getType());
+
+            DataType resultType =
+                    arithmetic.resolveResultType(left.getType(), right.getType());
+
+            return new BoundBinaryExpression(
+                    left,
+                    right,
+                    symbol,
+                    resultType
+            );
+        }
+
+//        if (symbol instanceof ComparisonOperator comparison) {
+//
+//            comparison.validate(left.getType(), right.getType());
+//
+//            return new BoundBinaryExpression(
+//                    left,
+//                    right,
+//                    operator,
+//                    BooleanType.INSTANCE
+//            );
+//        }
+
+        throw new BindExceptionApplication(
+                "Unsupported operator: " + symbol
+        );
     }
 
     /**
@@ -98,7 +175,6 @@ public class Binder {
     private BoundColumnRef bindColumnRef(ColumnRef colRef, BoundTableRef table) {
         String columnName = colRef.name().getName();
 
-        // Busca a coluna nos metadados
         Optional<ColumnMetadata> colMeta = table.metadata()
                 .getColumn(new ColumnName(columnName));
 
@@ -112,9 +188,6 @@ public class Binder {
         return BoundColumnRef.from(table.getTableName(), colMeta.get());
     }
 
-    /**
-     * Valida uma referência de tabela
-     */
     private BoundTableRef bindTableRef(TableRef tableRef) {
         String schema = tableRef.schema().orElse("public");
         String tableName = tableRef.name().getName();
@@ -133,29 +206,5 @@ public class Binder {
         );
     }
 
-    /**
-     * Valida operações aritméticas para comandos SELECT.
-     * Apenas valida tipos e constrói a expressão tipada.
-     */
-    private BoundExpression bindArithmeticOperation(
-            BoundExpression left,
-            BoundExpression right,
-            String symbol
-    ) {
 
-        ArithmeticOperator operator =
-                ArithmeticOperator.fromSymbol(symbol);
-
-        operator.validate(left.getType(), right.getType());
-
-        DataType resultType =
-                operator.resolveResultType(left.getType(), right.getType());
-
-        return new BoundBinaryExpression(
-                left,
-                right,
-                symbol,
-                resultType
-        );
-    }
 }
