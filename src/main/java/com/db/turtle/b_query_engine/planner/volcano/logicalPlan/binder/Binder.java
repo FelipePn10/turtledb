@@ -61,11 +61,25 @@ public class Binder {
         List<BoundExpression> boundProjection =
                 bindProjection(select.projection(), boundTable);
 
-        // sem WHERE por enquanto
+        BoundExpression boundWhere = null;
+
+        if (select.where().isPresent()) {
+            boundWhere = bindExpression(
+                    select.where().get(),
+                    boundTable
+            );
+
+            if (!(boundWhere.getType() instanceof BooleanType)) {
+                throw new BindExceptionApplication(
+                        "WHERE clause must evaluate to BOOLEAN"
+                );
+            }
+        }
+
         return new BoundSelectStmt(
                 boundProjection,
                 boundTable,
-                //bindWhereOperation
+                Optional.ofNullable(boundWhere)
         );
     }
 
@@ -80,7 +94,8 @@ public class Binder {
         if (projection.size() == 1 && projection.getFirst() instanceof StarProjection) {
             return table.metadata().getAllColumns()
                     .stream()
-                    .map(col -> BoundColumnRef.from(table.getTableName(), col))
+                    .map(col ->
+                            BoundColumnRef.from(table.getTableName(), col))
                     .collect(Collectors.toList());
         }
 
@@ -154,16 +169,6 @@ public class Binder {
             );
         }
 
-        throw new BindExceptionApplication(
-                "Unsupported operator: " + symbol
-        );
-    }
-
-    private BoundExpression bindWhereOperation(
-            BoundExpression left,
-            BoundExpression right,
-            E_BinaryOperator symbol
-    ) {
         if (symbol instanceof ComparisonOperator comparison) {
 
             comparison.validate(left.getType(), right.getType());
@@ -177,6 +182,7 @@ public class Binder {
                     resultType
             );
         }
+
         throw new BindExceptionApplication(
                 "Unsupported operator: " + symbol
         );
