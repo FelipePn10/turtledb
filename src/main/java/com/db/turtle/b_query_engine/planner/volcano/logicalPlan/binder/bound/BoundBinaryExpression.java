@@ -18,7 +18,6 @@ public record BoundBinaryExpression(
 }
 
 
-// SELECT price * 10:
 //        (*)
 //       /   \
 //    price   10

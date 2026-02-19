@@ -4,7 +4,9 @@ import com.db.turtle.a_frontend.common.denominator.B_Expression;
 import com.db.turtle.a_frontend.common.denominator.C_Statement;
 import com.db.turtle.a_frontend.common.denominator.E_BinaryOperator;
 import com.db.turtle.a_frontend.impl.parser.ast.expression.BinaryExpression;
+import com.db.turtle.a_frontend.impl.parser.ast.expression.ComparisonOperator;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.*;
+import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.BooleanType;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.DataType;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundBinaryExpression;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundExpression;
@@ -63,7 +65,7 @@ public class Binder {
         return new BoundSelectStmt(
                 boundProjection,
                 boundTable,
-                Optional.empty()
+                //bindWhereOperation
         );
     }
 
@@ -152,18 +154,29 @@ public class Binder {
             );
         }
 
-//        if (symbol instanceof ComparisonOperator comparison) {
-//
-//            comparison.validate(left.getType(), right.getType());
-//
-//            return new BoundBinaryExpression(
-//                    left,
-//                    right,
-//                    operator,
-//                    BooleanType.INSTANCE
-//            );
-//        }
+        throw new BindExceptionApplication(
+                "Unsupported operator: " + symbol
+        );
+    }
 
+    private BoundExpression bindWhereOperation(
+            BoundExpression left,
+            BoundExpression right,
+            E_BinaryOperator symbol
+    ) {
+        if (symbol instanceof ComparisonOperator comparison) {
+
+            comparison.validate(left.getType(), right.getType());
+
+            DataType resultType = BooleanType.INSTANCE;
+
+            return new BoundBinaryExpression(
+                    left,
+                    right,
+                    symbol,
+                    resultType
+            );
+        }
         throw new BindExceptionApplication(
                 "Unsupported operator: " + symbol
         );
@@ -181,7 +194,7 @@ public class Binder {
         if (colMeta.isEmpty()) {
             throw new BindExceptionApplication(
                     "Column not found: " + columnName +
-                            " in tableb " + table.getTableName()
+                            " in table " + table.getTableName()
             );
         }
 
@@ -205,6 +218,4 @@ public class Binder {
                 tableRef.alias().orElse(tableName)
         );
     }
-
-
 }
