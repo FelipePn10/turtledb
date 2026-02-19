@@ -104,8 +104,6 @@ public enum ArithmeticOperator implements E_BinaryOperator {
         return symbol;
     }
 
-    public abstract void validate(DataType left, DataType right);
-
     public abstract DataType resolveResultType(DataType left, DataType right);
 
     protected static void requireNumeric(DataType left, DataType right) {

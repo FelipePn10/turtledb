@@ -20,6 +20,18 @@ public abstract class DataType implements A_AstNode {
         return false;
     }
 
+    public boolean isComparableWith(DataType other) {
+        if (this.equals(other)) {
+            return true;
+        }
+
+        if (this.isNumeric() && other.isNumeric()) {
+            return true;
+        }
+
+        return false;
+    }
+
     @Override
     public abstract String toString();
 }
