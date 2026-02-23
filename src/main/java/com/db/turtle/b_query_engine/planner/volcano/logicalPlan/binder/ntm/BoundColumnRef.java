@@ -6,6 +6,8 @@ import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.DataType;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.BoundExpression;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.ColumnMetadata;
 
+import java.util.Objects;
+
 /*
 * Representa uma coluna validada gramaticamente e semanticamente
 * */
@@ -29,21 +31,25 @@ public record BoundColumnRef(
 
     @Override
     public DataType getType() {
-        return null;
+        return type;
     }
 
     @Override
     public boolean equals(Object o) {
-        return false;
+        if (this == o) return true;
+        if (!(o instanceof BoundColumnRef other)) return false;
+        return columnPosition == other.columnPosition
+                && Objects.equals(tableName, other.tableName)
+                && Objects.equals(columnName, other.columnName);
     }
 
     @Override
     public int hashCode() {
-        return 0;
+        return Objects.hash(tableName, columnName, columnPosition);
     }
 
     @Override
     public String toString() {
-        return "";
+        return tableName + "." + columnName + " : " + type;
     }
 }
