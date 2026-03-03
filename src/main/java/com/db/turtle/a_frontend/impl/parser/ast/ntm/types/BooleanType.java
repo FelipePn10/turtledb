@@ -9,7 +9,7 @@ public class BooleanType extends DataType{
 
     @Override
     public String toString() {
-        return "BOOLEAN";
+        return getTypeName();
     }
 
     @Override
