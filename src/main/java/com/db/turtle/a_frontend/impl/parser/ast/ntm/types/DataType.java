@@ -20,6 +20,10 @@ public abstract class DataType implements A_AstNode {
         return false;
     }
 
+    public boolean isBoolean() {
+        return false;
+    }
+
     public boolean isComparableWith(DataType other) {
         if (this.equals(other)) {
             return true;
@@ -31,6 +35,7 @@ public abstract class DataType implements A_AstNode {
 
         return false;
     }
+
 
     @Override
     public abstract String toString();

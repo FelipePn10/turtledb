@@ -23,7 +23,6 @@ public enum ComparisonOperator implements E_BinaryOperator {
         return symbol;
     }
 
-    @Override
     public void validate(DataType left, DataType right) {
 
         if (left == null || right == null) {
