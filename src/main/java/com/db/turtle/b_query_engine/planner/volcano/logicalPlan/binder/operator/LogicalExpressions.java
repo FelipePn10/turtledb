@@ -1,9 +1,7 @@
 package com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.operator;
 
 import com.db.turtle.a_frontend.common.denominator.E_BinaryOperator;
-import com.db.turtle.a_frontend.impl.parser.ast.ntm.ColumnName;
 import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.DataType;
-import com.db.turtle.a_frontend.impl.parser.ast.ntm.types.VarcharType;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.exception.BindExceptionApplication;
 
 /*
@@ -30,7 +28,7 @@ public enum LogicalExpressions implements E_BinaryOperator {
         this.symbol = symbol;
     }
 
-    public String Symbol() {
+    public String symbol() {
         return symbol;
     }
 

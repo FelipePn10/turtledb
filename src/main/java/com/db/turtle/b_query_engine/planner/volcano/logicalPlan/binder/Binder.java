@@ -16,7 +16,7 @@ import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.exception
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.ntm.BoundColumnRef;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.ntm.BoundTableRef;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.operator.ArithmeticOperator;
-import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.operator.LogicOperator;
+import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.operator.LogicalExpressions;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.Catalog;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.ColumnMetadata;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.TableMetadata;
@@ -184,7 +184,7 @@ public class Binder {
             );
         }
 
-        if (symbol instanceof LogicOperator logic) {
+        if (symbol instanceof LogicalExpressions logic) {
             logic.validate(left.getType(), right.getType());
             DataType resultType = BooleanType.INSTANCE;
 
