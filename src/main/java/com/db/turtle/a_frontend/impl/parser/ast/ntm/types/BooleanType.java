@@ -1,10 +1,15 @@
 package com.db.turtle.a_frontend.impl.parser.ast.ntm.types;
 
-public class BooleanType extends DataType{
+public class BooleanType extends DataType {
     public static final BooleanType INSTANCE = new BooleanType();
 
     public BooleanType() {
         super("BOOLEAN");
+    }
+
+    @Override
+    public boolean isBoolean() {
+        return true;
     }
 
     @Override

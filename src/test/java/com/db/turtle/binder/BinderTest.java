@@ -11,7 +11,7 @@ import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.bound.*;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.exception.BindExceptionApplication;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.ntm.BoundColumnRef;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.operator.ArithmeticOperator;
-import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.operator.LogicOperator;
+import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.binder.operator.LogicalExpressions;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.ColumnMetadata;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.InMemoryCatalog;
 import com.db.turtle.b_query_engine.planner.volcano.logicalPlan.catalog.TableMetadata;
@@ -35,9 +35,8 @@ import static org.assertj.core.api.Assertions.*;
  *   <li>{@link InMemoryCatalog} e {@link TableMetadata} são instâncias reais com dados
  *       controlados — sem mocks, sem acoplamento à implementação interna.</li>
  *   <li>Cada grupo de cenários isolado via {@code @Nested} por responsabilidade.</li>
- *   <li>Foco nas funcionalidades recém-adicionadas:
- *       <b>WHERE com {@link ComparisonOperator}</b> e
- *       <b>projeção aritmética com {@link ArithmeticOperator}</b>.</li>
+ *   <li>Cobre: projeção, resolução de tabela, WHERE com {@link ComparisonOperator},
+ *       {@link ArithmeticOperator}, {@link LogicalExpressions} e cenários combinados.</li>
  * </ul>
  */
 @DisplayName("Binder")
@@ -72,6 +71,7 @@ class BinderTest {
         binder = new Binder(catalog);
     }
 
+    // Projeção
     @Nested
     @DisplayName("SELECT — projeção")
     class Projection {
@@ -116,6 +116,8 @@ class BinderTest {
         }
     }
 
+    // Resolução de tabela
+
     @Nested
     @DisplayName("FROM — resolução de tabela")
     class TableResolution {
@@ -157,6 +159,8 @@ class BinderTest {
         }
     }
 
+    // WHERE — ComparisonOperator
+
     @Nested
     @DisplayName("WHERE — ComparisonOperator")
     class WhereComparisonOperator {
@@ -168,7 +172,7 @@ class BinderTest {
         }
 
         @Test
-        @DisplayName("WHERE price > discount  →  BoundBinaryExpression do tipo Boolean")
+        @DisplayName("WHERE price > discount → BoundBinaryExpression do tipo BooleanType")
         void greaterThan_numericOperands_returnsBooleanType() {
             SelectStmt stmt = selectStarWithWhere(bin(col(COL_PRICE), ComparisonOperator.GT, col(COL_DISCOUNT)));
 
@@ -179,7 +183,7 @@ class BinderTest {
         }
 
         @Test
-        @DisplayName("WHERE quantity = discount  ->  BooleanType (mesmo tipo numérico)")
+        @DisplayName("WHERE quantity = discount → BooleanType (mesmo tipo numérico)")
         void equality_sameNumericType_returnsBooleanType() {
             SelectStmt stmt = selectStarWithWhere(bin(col(COL_QUANTITY), ComparisonOperator.EQ, col(COL_DISCOUNT)));
 
@@ -190,7 +194,7 @@ class BinderTest {
         }
 
         @Test
-        @DisplayName("WHERE price <= discount  ->  BooleanType e operandos left/right preservados")
+        @DisplayName("WHERE price <= discount → BooleanType e operandos left/right preservados")
         void lessThanOrEqual_preservesLeftAndRightOperands() {
             SelectStmt stmt = selectStarWithWhere(bin(col(COL_PRICE), ComparisonOperator.LE, col(COL_DISCOUNT)));
 
@@ -216,7 +220,6 @@ class BinderTest {
         @Test
         @DisplayName("WHERE com expressão aritmética (Decimal, não Boolean) lança BindExceptionApplication")
         void whereWithArithmeticResult_notBoolean_throws() {
-            // price + discount -> DecimalType, não BooleanType -> deve ser rejeitado
             SelectStmt stmt = selectStarWithWhere(bin(col(COL_PRICE), ArithmeticOperator.ADD, col(COL_DISCOUNT)));
 
             assertThatThrownBy(() -> binder.bind(stmt))
@@ -233,6 +236,8 @@ class BinderTest {
                     .isInstanceOf(RuntimeException.class);
         }
     }
+
+    // Expressões aritméticas — ArithmeticOperator
 
     @Nested
     @DisplayName("Expressões aritméticas — ArithmeticOperator")
@@ -326,11 +331,9 @@ class BinderTest {
 
             BoundBinaryExpression boundOuter = bindSingleExpr(outer);
 
-            // Nó raiz: MUL com resultado Decimal (widening)
             assertThat(boundOuter.symbol()).isEqualTo(ArithmeticOperator.MUL);
             assertThat(boundOuter.getType()).isInstanceOf(DecimalType.class);
 
-            // Nó filho direito: ADD com Integer
             BoundBinaryExpression boundInner = (BoundBinaryExpression) boundOuter.right();
             assertThat(boundInner.symbol()).isEqualTo(ArithmeticOperator.ADD);
             assertThat(boundInner.getType()).isInstanceOf(IntegerType.class);
@@ -351,8 +354,255 @@ class BinderTest {
         }
     }
 
+    // ArithmeticOperator — lógica interna isolada
+
     @Nested
-    @DisplayName("Combinação: projeção aritmética + WHERE comparison")
+    @DisplayName("ArithmeticOperator — lógica interna")
+    class ArithmeticOperatorUnit {
+
+        @Test
+        @DisplayName("fromSymbol(\"+\") → ADD")
+        void fromSymbol_plus_returnsAdd() {
+            assertThat(ArithmeticOperator.fromSymbol("+")).isEqualTo(ArithmeticOperator.ADD);
+        }
+
+        @Test
+        @DisplayName("fromSymbol(\"%\") → MOD")
+        void fromSymbol_percent_returnsMod() {
+            assertThat(ArithmeticOperator.fromSymbol("%")).isEqualTo(ArithmeticOperator.MOD);
+        }
+
+        @Test
+        @DisplayName("fromSymbol símbolo desconhecido lança BindExceptionApplication")
+        void fromSymbol_unknown_throwsBindException() {
+            assertThatThrownBy(() -> ArithmeticOperator.fromSymbol("^"))
+                    .isInstanceOf(BindExceptionApplication.class);
+        }
+
+        @Test
+        @DisplayName("DIV.resolveResultType(Decimal(10,2), Integer) — scale=13 e precision=21")
+        void div_resolveResultType_calculatesScaleAndPrecision() {
+            DataType result = ArithmeticOperator.DIV.resolveResultType(new DecimalType(10, 2), new IntegerType());
+
+            assertThat(result).isInstanceOf(DecimalType.class);
+            assertThat(((DecimalType) result).getScale()).isEqualTo(13);
+            assertThat(((DecimalType) result).getPrecision()).isEqualTo(21);
+        }
+
+        @Test
+        @DisplayName("ADD.validate(Integer, Integer) não lança exception (tipos válidos)")
+        void add_validate_integerOperands_doesNotThrow() {
+            try {
+                ArithmeticOperator.ADD.validate(new IntegerType(), new IntegerType());
+            } catch (Exception e) {
+                fail("Não deveria lançar exception para Integer + Integer, mas lançou: " + e.getMessage());
+            }
+        }
+
+        @Test
+        @DisplayName("MOD.validate(Decimal, Integer) lança BindExceptionApplication com mensagem 'integer'")
+        void mod_validate_decimalOperand_throwsWithMessage() {
+            assertThatThrownBy(() ->
+                    ArithmeticOperator.MOD.validate(new DecimalType(10, 2), new IntegerType()))
+                    .isInstanceOf(BindExceptionApplication.class)
+                    .hasMessageContaining("integer");
+        }
+
+        @Test
+        @DisplayName("ADD.validate(Boolean, Integer) lança BindExceptionApplication com mensagem 'numeric'")
+        void add_validate_booleanOperand_throwsWithMessage() {
+            assertThatThrownBy(() ->
+                    ArithmeticOperator.ADD.validate(new BooleanType(), new IntegerType()))
+                    .isInstanceOf(BindExceptionApplication.class)
+                    .hasMessageContaining("numeric");
+        }
+    }
+
+    // WHERE — LogicalExpressions
+
+    @Nested
+    @DisplayName("WHERE — LogicalExpressions")
+    class WhereLogicalExpressions {
+
+        @Test
+        @DisplayName("AND entre dois Boolean → BoundBinaryExpression do tipo BooleanType")
+        void and_booleanOperands_returnsBooleanType() {
+            BinaryExpression left  = bin(col(COL_PRICE),    ComparisonOperator.GT, col(COL_DISCOUNT));
+            BinaryExpression right = bin(col(COL_QUANTITY), ComparisonOperator.GT, col(COL_DISCOUNT));
+            BinaryExpression and   = bin(left, LogicalExpressions.AND, right);
+
+            BoundSelectStmt result = bind(selectStarWithWhere(and));
+
+            assertThat(result.where()).isPresent();
+            assertThat(result.where().get().getType()).isInstanceOf(BooleanType.class);
+        }
+
+        @Test
+        @DisplayName("OR entre dois Boolean → BoundBinaryExpression do tipo BooleanType")
+        void or_booleanOperands_returnsBooleanType() {
+            BinaryExpression left  = bin(col(COL_PRICE),    ComparisonOperator.GT, col(COL_DISCOUNT));
+            BinaryExpression right = bin(col(COL_QUANTITY), ComparisonOperator.EQ, col(COL_DISCOUNT));
+            BinaryExpression or    = bin(left, LogicalExpressions.OR, right);
+
+            BoundSelectStmt result = bind(selectStarWithWhere(or));
+
+            assertThat(result.where()).isPresent();
+            assertThat(result.where().get().getType()).isInstanceOf(BooleanType.class);
+        }
+
+        @Test
+        @DisplayName("AND preserva operandos esquerdo e direito como BoundBinaryExpression")
+        void and_preservesLeftAndRightOperands() {
+            BinaryExpression left  = bin(col(COL_PRICE),    ComparisonOperator.GT, col(COL_DISCOUNT));
+            BinaryExpression right = bin(col(COL_QUANTITY), ComparisonOperator.EQ, col(COL_DISCOUNT));
+            BinaryExpression and   = bin(left, LogicalExpressions.AND, right);
+
+            BoundBinaryExpression bound = whereExpr(bind(selectStarWithWhere(and)));
+
+            assertThat(bound.symbol()).isEqualTo(LogicalExpressions.AND);
+            assertThat(bound.left()).isInstanceOf(BoundBinaryExpression.class);
+            assertThat(bound.right()).isInstanceOf(BoundBinaryExpression.class);
+        }
+
+        @Test
+        @DisplayName("AND aninhado: (price > discount) AND (quantity > discount) AND (price = quantity) — três níveis")
+        void and_tripleNested_bindsRecursively() {
+            BinaryExpression cmp1  = bin(col(COL_PRICE),    ComparisonOperator.GT, col(COL_DISCOUNT));
+            BinaryExpression cmp2  = bin(col(COL_QUANTITY), ComparisonOperator.GT, col(COL_DISCOUNT));
+            BinaryExpression cmp3  = bin(col(COL_PRICE),    ComparisonOperator.EQ, col(COL_QUANTITY));
+            BinaryExpression inner = bin(cmp1, LogicalExpressions.AND, cmp2);
+            BinaryExpression outer = bin(inner, LogicalExpressions.AND, cmp3);
+
+            BoundSelectStmt result = bind(selectStarWithWhere(outer));
+
+            assertThat(result.where()).isPresent();
+            assertThat(result.where().get().getType()).isInstanceOf(BooleanType.class);
+        }
+
+        @ParameterizedTest(name = "LogicalExpressions.{0} entre Booleans → BooleanType")
+        @EnumSource(LogicalExpressions.class)
+        @DisplayName("AND e OR com operandos Boolean produzem BooleanType")
+        void allLogicalOperators_booleanOperands_returnBoolean(LogicalExpressions op) {
+            BinaryExpression left  = bin(col(COL_PRICE),    ComparisonOperator.GT, col(COL_DISCOUNT));
+            BinaryExpression right = bin(col(COL_QUANTITY), ComparisonOperator.EQ, col(COL_DISCOUNT));
+            BinaryExpression expr  = bin(left, op, right);
+
+            BoundSelectStmt result = bind(selectStarWithWhere(expr));
+
+            assertThat(result.where()).isPresent();
+            assertThat(result.where().get().getType()).isInstanceOf(BooleanType.class);
+        }
+
+        @Test
+        @DisplayName("AND com lado esquerdo aritmético (Decimal) lança exception no WHERE")
+        void and_leftIsArithmetic_throwsOnWhereValidation() {
+            BinaryExpression arithmetic = bin(col(COL_PRICE), ArithmeticOperator.ADD, col(COL_DISCOUNT));
+            BinaryExpression right      = bin(col(COL_QUANTITY), ComparisonOperator.GT, col(COL_DISCOUNT));
+            BinaryExpression and        = bin(arithmetic, LogicalExpressions.AND, right);
+
+            assertThatThrownBy(() -> binder.bind(selectStarWithWhere(and)))
+                    .isInstanceOf(RuntimeException.class);
+        }
+
+        @Test
+        @DisplayName("OR com lado direito aritmético (Integer) lança exception no WHERE")
+        void or_rightIsArithmetic_throwsOnWhereValidation() {
+            BinaryExpression left       = bin(col(COL_PRICE), ComparisonOperator.GT, col(COL_DISCOUNT));
+            BinaryExpression arithmetic = bin(col(COL_QUANTITY), ArithmeticOperator.MUL, col(COL_DISCOUNT));
+            BinaryExpression or         = bin(left, LogicalExpressions.OR, arithmetic);
+
+            assertThatThrownBy(() -> binder.bind(selectStarWithWhere(or)))
+                    .isInstanceOf(RuntimeException.class);
+        }
+
+        @Test
+        @DisplayName("Mistura AND e OR aninhados: (price > discount) OR ((quantity > discount) AND (price = quantity))")
+        void mixed_andOr_nested_bindsSuccessfully() {
+            BinaryExpression cmp1  = bin(col(COL_PRICE),    ComparisonOperator.GT, col(COL_DISCOUNT));
+            BinaryExpression cmp2  = bin(col(COL_QUANTITY), ComparisonOperator.GT, col(COL_DISCOUNT));
+            BinaryExpression cmp3  = bin(col(COL_PRICE),    ComparisonOperator.EQ, col(COL_QUANTITY));
+            BinaryExpression inner = bin(cmp2, LogicalExpressions.AND, cmp3);
+            BinaryExpression outer = bin(cmp1, LogicalExpressions.OR,  inner);
+
+            BoundSelectStmt result = bind(selectStarWithWhere(outer));
+
+            assertThat(result.where()).isPresent();
+            assertThat(result.where().get().getType()).isInstanceOf(BooleanType.class);
+
+            BoundBinaryExpression root = whereExpr(result);
+            assertThat(root.symbol()).isEqualTo(LogicalExpressions.OR);
+            assertThat(root.right()).isInstanceOf(BoundBinaryExpression.class);
+            assertThat(((BoundBinaryExpression) root.right()).symbol())
+                    .isEqualTo(LogicalExpressions.AND);
+        }
+    }
+
+    // LogicalExpressions (lógica interna isolada)
+    @Nested
+    @DisplayName("LogicalExpressions — lógica interna")
+    class LogicalExpressionsUnit {
+
+        @Test
+        @DisplayName("AND.validate(Boolean, Boolean) não lança exception")
+        void and_validate_booleanOperands_doesNotThrow() {
+            try {
+                LogicalExpressions.AND.validate(new BooleanType(), new BooleanType());
+            } catch (Exception e) {
+                fail("Não deveria lançar exception para AND(Boolean, Boolean), mas lançou: " + e.getMessage());
+            }
+        }
+
+        @Test
+        @DisplayName("OR.validate(Boolean, Boolean) não lança exception")
+        void or_validate_booleanOperands_doesNotThrow() {
+            try {
+                LogicalExpressions.OR.validate(new BooleanType(), new BooleanType());
+            } catch (Exception e) {
+                fail("Não deveria lançar exception para OR(Boolean, Boolean), mas lançou: " + e.getMessage());
+            }
+        }
+
+        @Test
+        @DisplayName("AND.validate(Integer, Boolean) lança BindExceptionApplication")
+        void and_validate_leftNotBoolean_throws() {
+            assertThatThrownBy(() ->
+                    LogicalExpressions.AND.validate(new IntegerType(), new BooleanType()))
+                    .isInstanceOf(BindExceptionApplication.class)
+                    .hasMessageContaining("boolean");
+        }
+
+        @Test
+        @DisplayName("OR.validate(Boolean, Integer) lança BindExceptionApplication")
+        void or_validate_rightNotBoolean_throws() {
+            assertThatThrownBy(() ->
+                    LogicalExpressions.OR.validate(new BooleanType(), new IntegerType()))
+                    .isInstanceOf(BindExceptionApplication.class)
+                    .hasMessageContaining("boolean");
+        }
+
+        @Test
+        @DisplayName("AND.validate(Decimal, Decimal) lança BindExceptionApplication")
+        void and_validate_decimalOperands_throws() {
+            assertThatThrownBy(() ->
+                    LogicalExpressions.AND.validate(new DecimalType(10, 2), new DecimalType(10, 2)))
+                    .isInstanceOf(BindExceptionApplication.class)
+                    .hasMessageContaining("boolean");
+        }
+
+        @ParameterizedTest(name = "LogicalExpressions.{0} com operandos não-Boolean lança BindExceptionApplication")
+        @EnumSource(LogicalExpressions.class)
+        @DisplayName("Todos os operadores lógicos rejeitam operandos não-Boolean")
+        void allLogicalOperators_nonBooleanOperands_throw(LogicalExpressions op) {
+            assertThatThrownBy(() ->
+                    op.validate(new IntegerType(), new IntegerType()))
+                    .isInstanceOf(BindExceptionApplication.class);
+        }
+    }
+
+    // Combinação de projeção aritmética + WHERE comparison/lógica
+
+    @Nested
+    @DisplayName("Combinação: projeção aritmética + WHERE")
     class CombinedScenarios {
 
         @Test
@@ -398,10 +648,10 @@ class BinderTest {
 
         @Test
         @DisplayName("SELECT price * quantity WHERE (price > discount) AND (quantity > discount) — aritmética + lógica")
-        void arithmeticProjection_withLogicWhere() {
+        void arithmeticProjection_withLogicalExpressionsWhere() {
             BinaryExpression cmp1 = bin(col(COL_PRICE),    ComparisonOperator.GT, col(COL_DISCOUNT));
             BinaryExpression cmp2 = bin(col(COL_QUANTITY), ComparisonOperator.GT, col(COL_DISCOUNT));
-            BinaryExpression and  = bin(cmp1, LogicOperator.AND, cmp2);
+            BinaryExpression and  = bin(cmp1, LogicalExpressions.AND, cmp2);
 
             SelectStmt stmt = new SelectStmt(
                     List.of(bin(col(COL_PRICE), ArithmeticOperator.MUL, col(COL_QUANTITY))),
@@ -415,191 +665,42 @@ class BinderTest {
             assertThat(result.where()).isPresent();
             assertThat(result.where().get().getType()).isInstanceOf(BooleanType.class);
         }
-    }
-
-    @Nested
-    @DisplayName("WHERE — LogicOperator")
-    class WhereLogicOperator {
 
         @Test
-        @DisplayName("AND entre dois Boolean → BooleanType")
-        void and_booleanOperands_returnsBooleanType() {
-            // (price > discount) AND (quantity > discount)
-            BinaryExpression left  = bin(col(COL_PRICE),    ComparisonOperator.GT, col(COL_DISCOUNT));
-            BinaryExpression right = bin(col(COL_QUANTITY), ComparisonOperator.GT, col(COL_DISCOUNT));
-            BinaryExpression and   = bin(left, LogicOperator.AND, right);
+        @DisplayName("SELECT price * quantity WHERE (price > discount) OR (quantity = discount) — aritmética + OR")
+        void arithmeticProjection_withOrWhere() {
+            BinaryExpression cmp1 = bin(col(COL_PRICE),    ComparisonOperator.GT, col(COL_DISCOUNT));
+            BinaryExpression cmp2 = bin(col(COL_QUANTITY), ComparisonOperator.EQ, col(COL_DISCOUNT));
+            BinaryExpression or   = bin(cmp1, LogicalExpressions.OR, cmp2);
 
-            BoundSelectStmt result = bind(selectStarWithWhere(and));
+            SelectStmt stmt = new SelectStmt(
+                    List.of(bin(col(COL_PRICE), ArithmeticOperator.MUL, col(COL_QUANTITY))),
+                    tableRef(),
+                    Optional.of(or)
+            );
 
+            BoundSelectStmt result = bind(stmt);
+
+            assertThat(result.projection().getFirst().getType()).isInstanceOf(DecimalType.class);
             assertThat(result.where()).isPresent();
             assertThat(result.where().get().getType()).isInstanceOf(BooleanType.class);
-        }
-
-        @Test
-        @DisplayName("OR entre dois Boolean → BooleanType")
-        void or_booleanOperands_returnsBooleanType() {
-            // (price > discount) OR (quantity = discount)
-            BinaryExpression left  = bin(col(COL_PRICE),    ComparisonOperator.GT, col(COL_DISCOUNT));
-            BinaryExpression right = bin(col(COL_QUANTITY), ComparisonOperator.EQ, col(COL_DISCOUNT));
-            BinaryExpression or    = bin(left, LogicOperator.OR, right);
-
-            BoundSelectStmt result = bind(selectStarWithWhere(or));
-
-            assertThat(result.where()).isPresent();
-            assertThat(result.where().get().getType()).isInstanceOf(BooleanType.class);
-        }
-
-        @Test
-        @DisplayName("AND preserva operandos esquerdo e direito")
-        void and_preservesLeftAndRightOperands() {
-            BinaryExpression left  = bin(col(COL_PRICE),    ComparisonOperator.GT, col(COL_DISCOUNT));
-            BinaryExpression right = bin(col(COL_QUANTITY), ComparisonOperator.EQ, col(COL_DISCOUNT));
-            BinaryExpression and   = bin(left, LogicOperator.AND, right);
-
-            BoundBinaryExpression bound = whereExpr(bind(selectStarWithWhere(and)));
-
-            assertThat(bound.symbol()).isEqualTo(LogicOperator.AND);
-            assertThat(bound.left()).isInstanceOf(BoundBinaryExpression.class);
-            assertThat(bound.right()).isInstanceOf(BoundBinaryExpression.class);
-        }
-
-        @Test
-        @DisplayName("AND aninhado: (a > b) AND (c > d) AND (a = c) — três níveis")
-        void and_tripleNested_bindsRecursively() {
-            BinaryExpression cmp1  = bin(col(COL_PRICE),    ComparisonOperator.GT, col(COL_DISCOUNT));
-            BinaryExpression cmp2  = bin(col(COL_QUANTITY), ComparisonOperator.GT, col(COL_DISCOUNT));
-            BinaryExpression cmp3  = bin(col(COL_PRICE),    ComparisonOperator.EQ, col(COL_QUANTITY));
-            BinaryExpression inner = bin(cmp1, LogicOperator.AND, cmp2);
-            BinaryExpression outer = bin(inner, LogicOperator.AND, cmp3);
-
-            BoundSelectStmt result = bind(selectStarWithWhere(outer));
-
-            assertThat(result.where()).isPresent();
-            assertThat(result.where().get().getType()).isInstanceOf(BooleanType.class);
-        }
-
-        @ParameterizedTest(name = "LogicOperator.{0} entre Booleans → BooleanType")
-        @EnumSource(value = LogicOperator.class, names = {"AND", "OR"})
-        @DisplayName("AND e OR com operandos Boolean produzem BooleanType")
-        void andOr_booleanOperands_returnBoolean(LogicOperator op) {
-            BinaryExpression left  = bin(col(COL_PRICE),    ComparisonOperator.GT, col(COL_DISCOUNT));
-            BinaryExpression right = bin(col(COL_QUANTITY), ComparisonOperator.EQ, col(COL_DISCOUNT));
-            BinaryExpression expr  = bin(left, op, right);
-
-            BoundSelectStmt result = bind(selectStarWithWhere(expr));
-
-            assertThat(result.where()).isPresent();
-            assertThat(result.where().get().getType()).isInstanceOf(BooleanType.class);
-        }
-
-        @Test
-        @DisplayName("AND com lado esquerdo não-Boolean (aritmético) lança exception no WHERE")
-        void and_leftNotBoolean_throwsOnWhereValidation() {
-            // price + discount → Decimal, não Boolean → WHERE deve rejeitar
-            BinaryExpression arithmetic = bin(col(COL_PRICE), ArithmeticOperator.ADD, col(COL_DISCOUNT));
-            BinaryExpression right      = bin(col(COL_QUANTITY), ComparisonOperator.GT, col(COL_DISCOUNT));
-            BinaryExpression and        = bin(arithmetic, LogicOperator.AND, right);
-
-            assertThatThrownBy(() -> binder.bind(selectStarWithWhere(and)))
-                    .isInstanceOf(RuntimeException.class);
         }
     }
 
-    // =========================================================================
-    // 7. ArithmeticOperator — lógica interna isolada
-    // =========================================================================
+    // Helpers
 
-    @Nested
-    @DisplayName("ArithmeticOperator — lógica interna")
-    class ArithmeticOperatorUnit {
-
-        @Test
-        @DisplayName("fromSymbol(\"+\") → ADD")
-        void fromSymbol_plus_returnsAdd() {
-            assertThat(ArithmeticOperator.fromSymbol("+")).isEqualTo(ArithmeticOperator.ADD);
-        }
-
-        @Test
-        @DisplayName("fromSymbol(\"%\") → MOD")
-        void fromSymbol_percent_returnsMod() {
-            assertThat(ArithmeticOperator.fromSymbol("%")).isEqualTo(ArithmeticOperator.MOD);
-        }
-
-        @Test
-        @DisplayName("fromSymbol símbolo desconhecido lança BindExceptionApplication")
-        void fromSymbol_unknown_throwsBindException() {
-            assertThatThrownBy(() -> ArithmeticOperator.fromSymbol("^"))
-                    .isInstanceOf(BindExceptionApplication.class);
-        }
-
-        @Test
-        @DisplayName("DIV.resolveResultType(Decimal(10,2), Integer) — scale=13 e precision=21")
-        void div_resolveResultType_calculatesScaleAndPrecision() {
-            DataType result = ArithmeticOperator.DIV.resolveResultType(new DecimalType(10, 2), new IntegerType());
-
-            assertThat(result).isInstanceOf(DecimalType.class);
-            assertThat(((DecimalType) result).getScale()).isEqualTo(13);
-            assertThat(((DecimalType) result).getPrecision()).isEqualTo(21);
-        }
-
-        @Test
-        @DisplayName("ADD.validate(Integer, Integer) não lança exception (tipos válidos)")
-        void add_validate_integerOperands_doesNotThrow() {
-            // Verifica que nenhuma exception é lançada para tipos numéricos válidos
-            try {
-                ArithmeticOperator.ADD.validate(new IntegerType(), new IntegerType());
-            } catch (Exception e) {
-                fail("Não deveria lançar exception para Integer + Integer, mas lançou: " + e.getMessage());
-            }
-        }
-
-        @Test
-        @DisplayName("MOD.validate(Decimal, Integer) lança BindExceptionApplication com mensagem 'integer'")
-        void mod_validate_decimalOperand_throwsWithMessage() {
-            assertThatThrownBy(() ->
-                    ArithmeticOperator.MOD.validate(new DecimalType(10, 2), new IntegerType()))
-                    .isInstanceOf(BindExceptionApplication.class)
-                    .hasMessageContaining("integer");
-        }
-
-        @Test
-        @DisplayName("ADD.validate(Boolean, Integer) lança BindExceptionApplication com mensagem 'numeric'")
-        void add_validate_booleanOperand_throwsWithMessage() {
-            assertThatThrownBy(() ->
-                    ArithmeticOperator.ADD.validate(new BooleanType(), new IntegerType()))
-                    .isInstanceOf(BindExceptionApplication.class)
-                    .hasMessageContaining("numeric");
-        }
-    }
-
-    /**
-     * Constrói um {@link ColumnRef}.
-     * Assinatura real: ColumnRef(Optional<String> qualifier, ColumnName name)
-     */
     private static ColumnRef col(String name) {
         return new ColumnRef(Optional.empty(), new ColumnName(name));
     }
 
-    /**
-     * Constrói um {@link TableRef} para a tabela padrão.
-     * Assinatura real: TableRef(Optional<String> schema, TableName name, Optional<String> alias)
-     */
     private static TableRef tableRef() {
         return new TableRef(Optional.empty(), new TableName(TABLE), Optional.empty());
     }
 
-    /**
-     * Constrói um {@link BinaryExpression}.
-     * Assinatura real: BinaryExpression(B_Expression left, E_BinaryOperator operator, B_Expression right)
-     */
     private static BinaryExpression bin(B_Expression left, E_BinaryOperator op, B_Expression right) {
         return new BinaryExpression(left, op, right);
     }
 
-    /**
-     * SELECT * FROM orders (sem WHERE).
-     * Cast seguro: StarProjection implementa B_Expression em runtime.
-     */
     @SuppressWarnings("unchecked")
     private static SelectStmt selectStar() {
         return new SelectStmt(
@@ -609,12 +710,10 @@ class BinderTest {
         );
     }
 
-    /** SELECT &lt;exprs&gt; FROM orders (sem WHERE). */
     private static SelectStmt selectWith(List<B_Expression> projection) {
         return new SelectStmt(projection, tableRef(), Optional.empty());
     }
 
-    /** SELECT * FROM orders WHERE &lt;where&gt;. */
     @SuppressWarnings("unchecked")
     private static SelectStmt selectStarWithWhere(B_Expression where) {
         return new SelectStmt(
@@ -624,29 +723,19 @@ class BinderTest {
         );
     }
 
-    /** Faz o bind e devolve {@link BoundSelectStmt}. */
     private BoundSelectStmt bind(SelectStmt stmt) {
         return (BoundSelectStmt) binder.bind(stmt);
     }
 
-    /**
-     * Faz o bind de um SELECT com uma única expressão na projeção
-     * e retorna o {@link BoundBinaryExpression} resultante.
-     */
     private BoundBinaryExpression bindSingleExpr(B_Expression expr) {
         return (BoundBinaryExpression) bind(selectWith(List.of(expr))).projection().getFirst();
     }
 
-    /**
-     * Extrai o {@link BoundBinaryExpression} da cláusula WHERE.
-     * Falha explicitamente com mensagem clara se o WHERE estiver ausente.
-     */
     private static BoundBinaryExpression whereExpr(BoundSelectStmt result) {
         assertThat(result.where()).as("WHERE clause deve estar presente").isPresent();
         return (BoundBinaryExpression) result.where().get();
     }
 
-    /** Extrai o nome da coluna da projeção pelo índice. */
     private static String columnNameAt(BoundSelectStmt result, int index) {
         return ((BoundColumnRef) result.projection().get(index)).columnName().getName();
     }
